@@ -55,6 +55,7 @@
   <h1>數字賓果 🎯</h1>
   <span class="tag" id="tag"></span>
   <span class="sp"></span>
+  <button class="tbtn" id="helpBtn">❓ 玩法</button>
   <button class="tbtn" id="soundBtn">🔊</button>
   <button class="tbtn fsBtn" id="fsBtn">⛶ 全螢幕</button>
   <button class="tbtn" id="setBtn">⚙️ 設定</button>
@@ -113,6 +114,12 @@
 
 <script src="../shared/common.js"></script>
 <script>
+const HELP = ['🎯 數字賓果怎麼玩', '每個人都要準備一張紙和一支筆', [
+  ['✏️', '在紙上畫一個 <b>5×5</b> 的格子'],
+  ['🔢', '把 <b>1～25</b> 隨便填進格子裡<br>每個數字只填一次'],
+  ['🧮', '老師出一題，大家算出答案<br>在自己的格子上<b>圈起來</b>'],
+  ['🎉', '圈起來的數字連成一條線<br>（橫的、直的、斜的都可以）<br>就大喊「<b>賓果！</b>」'],
+], '⚠️ 算錯就會圈錯格，要認真算喔！'];
 const KEY = 'bingo_settings';
 let S = loadSettings(KEY, { ops: ALL_OPS, size: 5, lines: 1 }); S.ops = cleanOps(S.ops);
 let G = {};
@@ -183,7 +190,8 @@ function openSet() { T = JSON.parse(JSON.stringify(S)); drawSet(); $('setOv').cl
 $('setBtn').onclick = openSet;
 $('startBtn').onclick = () => { S = T; saveSettings(KEY, S); $('setOv').classList.remove('show'); newGame(); };
 
-openSet();
+$('helpBtn').onclick = () => showHelp(...HELP, '知道了');
+showHelp(...HELP, '知道了，開始設定 ▶').then(openSet);
 </script>
 </body>
 </html>

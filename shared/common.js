@@ -112,3 +112,15 @@ function celebrate(title, sub, btnText = '再玩一次 ▶') {
   ov.classList.add('show');
   return new Promise(res => { $('celBtn').onclick = () => { ov.classList.remove('show'); clearInterval(danceT); clearInterval(musicT); res(); }; });
 }
+
+// ================= 玩法說明（打開遊戲先看；右上角「❓ 玩法」隨時再看） =================
+// showHelp('遊戲名', '一句話', [[emoji, '說明'], ...], '補充', '按鈕字') → 按下按鈕才繼續
+function showHelp(title, sub, steps, note, btn = '知道了，開始玩！') {
+  let ov = $('helpOv');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'helpOv'; ov.className = 'ov help'; document.body.appendChild(ov); }
+  ov.innerHTML = `<h2>${title}</h2><div class="sub">${sub}</div><div class="hsteps">${steps.map(([e, t], i) =>
+    `<div class="hstep"><div class="no">${i + 1}</div><div class="emo">${e}</div><div class="txt">${t}</div></div>`).join('')}</div>
+    ${note ? `<div class="note">${note}</div>` : ''}<button class="start" id="helpGo">${btn}</button>`;
+  ov.classList.add('show');
+  return new Promise(res => { $('helpGo').onclick = () => { ov.classList.remove('show'); res(); }; });
+}

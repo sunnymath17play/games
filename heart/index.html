@@ -45,6 +45,7 @@
   <h1>心臟病 💓</h1>
   <span class="tag" id="tag"></span>
   <span class="sp"></span>
+  <button class="tbtn" id="helpBtn">❓ 玩法</button>
   <button class="tbtn" id="soundBtn">🔊</button>
   <button class="tbtn fsBtn" id="fsBtn">⛶ 全螢幕</button>
   <button class="tbtn" id="setBtn">⚙️ 設定</button>
@@ -82,6 +83,12 @@
 
 <script src="../shared/common.js"></script>
 <script>
+const HELP = ['💓 心臟病怎麼玩', '眼睛要快、手要更快！', [
+  ['📣', '畫面會跳出數字 1、2、3…<br>全班<b>一起大聲喊</b>出來'],
+  ['🃏', '每喊一個數字<br>就會翻出一張<b>算式卡</b>'],
+  ['✋', '卡片的答案<b>剛好等於</b>喊的數字<br>就馬上<b>拍桌子！</b>'],
+  ['😝', '不一樣就<b>不能拍</b>！<br>拍錯或最慢拍的人<br>就「心臟病發作」'],
+], '👀 老師看到有人拍，就按畫面上的「✋ 拍！」'];
 const KEY = 'heart_settings';
 let S = loadSettings(KEY, { ops: ALL_OPS, max: 10, speed: 3000, goal: 5, voice: 1 }); S.ops = cleanOps(S.ops);
 let G = {}, beatT = null;
@@ -156,7 +163,8 @@ function drawSet() {
 }
 $('setBtn').onclick = () => { stop(); T = JSON.parse(JSON.stringify(S)); drawSet(); $('setOv').classList.add('show'); };
 $('startBtn').onclick = () => { S = T; saveSettings(KEY, S); $('setOv').classList.remove('show'); newGame(); };
-newGame(); $('setBtn').onclick();
+$('helpBtn').onclick = () => { stop(); showHelp(...HELP, '知道了'); };
+newGame(); showHelp(...HELP, '知道了，開始設定 ▶').then(() => $('setBtn').onclick());
 </script>
 </body>
 </html>

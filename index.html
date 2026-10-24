@@ -22,31 +22,18 @@ body{font-family:"Noto Sans TC",system-ui,sans-serif;color:var(--ink);background
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 button{font-family:inherit;cursor:pointer;border:none}
 
-.head{display:flex;align-items:center;gap:16px;max-width:1180px;margin:0 auto;padding:22px 24px 8px}
-.head .logo{height:44px}
-.head h1{margin:0;font-size:clamp(26px,3.4vw,40px);font-weight:900;color:var(--green);letter-spacing:2px;white-space:nowrap}
-.head h1 small{display:block;font-size:.42em;color:var(--muted);letter-spacing:1px;font-weight:700}
-.head .sp{flex:1}
-.head .hulk{height:110px;margin:-20px 0 -14px;animation:wave 2.4s infinite ease-in-out;transform-origin:50% 100%}
-@keyframes wave{50%{transform:rotate(-4deg) translateY(-4px)}}
-.install{background:#fff;border:2px solid #e2d9bd;border-radius:999px;padding:8px 16px;font-size:16px;font-weight:700;color:var(--green);white-space:nowrap}
-
-.grid{max-width:1180px;margin:0 auto;padding:16px 24px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
-.card{background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 6px 22px rgba(36,80,60,.10);text-align:left;padding:0;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
-.card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(36,80,60,.16)}
-.card:active{transform:scale(.97)}
-.card .cover{position:relative;aspect-ratio:16/10;background:#eee center/cover}
-.card .cover .play{position:absolute;right:14px;bottom:-26px;width:58px;height:58px;border-radius:50%;background:var(--gold);color:#4a3200;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 #c08e1c;border:4px solid #fff}
-.card .body{padding:16px 20px 20px}
-.card h2{margin:0 0 6px;font-size:26px;font-weight:900;color:var(--green)}
-.card p{margin:0 0 12px;font-size:16px;color:#4d5c53;line-height:1.55}
-.tags{display:flex;flex-wrap:wrap;gap:6px}
-.tag{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;background:#f1efe6;color:#5c6a61}
-.tag.g{background:#fff1c9;color:#8a5d00}
-.tag.b{background:#e3eefc;color:#2a5ea8}
-.soon{border:3px dashed #d9d0b6;background:transparent;box-shadow:none;align-items:center;justify-content:center;min-height:240px;color:var(--muted);font-size:20px;font-weight:700;cursor:default}
-.soon:hover{transform:none;box-shadow:none}
-
+.head{display:flex;flex-direction:column;align-items:center;gap:6px;padding:34px 20px 10px;text-align:center}
+.head .logo{height:46px}
+.head h1{margin:0;font-size:clamp(34px,5vw,56px);font-weight:900;color:var(--green);letter-spacing:4px}
+.grid{max-width:1000px;margin:0 auto;padding:18px 24px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr));gap:22px}
+.tile{display:flex;align-items:center;gap:22px;padding:24px 26px;border-radius:30px;background:var(--c);color:#fff;text-align:left;box-shadow:0 7px 0 var(--d);transition:transform .12s}
+.tile:hover{transform:translateY(-3px)}
+.tile:active{transform:translateY(4px);box-shadow:0 3px 0 var(--d)}
+.tile .ic{flex:none;width:96px;height:96px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;font-size:54px}
+.tile h2{margin:0;font-size:clamp(28px,3.2vw,38px);font-weight:900;letter-spacing:2px}
+.tile p{margin:6px 0 0;font-size:clamp(17px,1.8vw,21px);font-weight:700;opacity:.95;line-height:1.45}
+.foot{text-align:center;padding:10px 0 40px}
+.install{background:none;border:none;color:var(--muted);font-size:16px;font-weight:700;text-decoration:underline}
 /* 遊戲畫面（同一個 App 裡開，左上角回遊戲盒） */
 #player{position:fixed;inset:0;background:#fff;display:none;z-index:10}
 #player.show{display:block}
@@ -63,9 +50,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .panel button{margin-top:12px;background:var(--green);color:#fff;font-size:18px;font-weight:700;padding:10px 26px;border-radius:999px}
 
 @media (max-width:640px){
-  .head{padding:16px 16px 4px;gap:10px}.head .logo{height:32px}.head .hulk{height:76px}
-  .install{font-size:14px;padding:6px 12px}
-  .grid{padding:12px 16px 30px;gap:18px}
+  .head{padding:22px 16px 4px}.tile{padding:18px;gap:16px}.tile .ic{width:72px;height:72px;font-size:40px}
 }
 </style>
 </head>
@@ -73,13 +58,11 @@ button{font-family:inherit;cursor:pointer;border:none}
 
 <div class="head">
   <img class="logo" src="img/logo.png" alt="SUNNY魔法數學" />
-  <h1>數學遊戲盒<small>SUNNY 魔法數學</small></h1>
-  <span class="sp"></span>
-  <button class="install" id="installBtn">📲 加到主畫面</button>
-  <img class="hulk" src="img/hulk_wave.png" alt="" />
+  <h1>數學遊戲盒</h1>
 </div>
 
 <div class="grid" id="grid"></div>
+<div class="foot"><button class="install" id="installBtn">📲 加到主畫面</button></div>
 
 <div id="player"><iframe id="frame" allow="fullscreen; autoplay" allowfullscreen></iframe></div>
 <button id="homeBtn">🏠 回遊戲盒</button>
@@ -92,33 +75,21 @@ button{font-family:inherit;cursor:pointer;border:none}
 // ===== 遊戲清單：新增遊戲就在這裡加一筆 =====
 // home：「回遊戲盒」按鈕放哪個角落，避開遊戲自己的按鈕
 const GAMES = [
-  { id: 'password', name: '終極密碼 💣', url: '../password/', cover: 'img/cover_password.jpg',
-    desc: '猜密碼、剪範圍、拆炸彈！可以分隊、用算式猜，還有浩克挑戰。',
-    tags: [['g', '全年級'], ['b', '投影全班玩']], home: 'bl' },
-  { id: 'bingo', name: '數字賓果 🎯', url: './bingo/', cover: 'img/cover_bingo.jpg',
-    desc: '每人畫一張賓果卡，電腦出算式，算出答案就圈起來。算錯就圈錯格喔！',
-    tags: [['g', '兩個數字加減乘除'], ['b', '投影全班玩'], ['', '要紙筆']], home: 'bl' },
-  { id: 'ttt', name: '圈圈叉叉 ⭕❌', url: './ttt/', cover: 'img/cover_ttt.jpg',
-    desc: '兩隊輪流挑格子答題，答對才能畫 O 或 X，先連成一線的隊伍贏！',
-    tags: [['g', '兩個數字加減乘除'], ['b', '投影全班玩'], ['', '兩隊對戰']], home: 'bl' },
-  { id: 'heart', name: '心臟病 💓', url: './heart/', cover: 'img/cover_heart.jpg',
-    desc: '大家一起喊 1、2、3…，卡片算出來等於喊的數字就趕快拍桌！',
-    tags: [['g', '兩個數字加減乘除'], ['b', '投影全班玩'], ['', '練心算速度']], home: 'bl' },
-  { id: '99', name: '九九乘法快閃 ⚡', url: '../99/', cover: 'img/cover_99.jpg',
-    desc: '練習模式翻卡慢慢練，挑戰模式 20 題限時，看自己進步多少。',
-    tags: [['g', '二、三年級'], ['', '自己玩']], home: 'bl' },
+  { id: 'password', name: '終極密碼', icon: '💣', c: '#3f7a5c', d: '#24503c', url: '../password/', line: '猜中藏起來的密碼數字，就拆彈成功！', home: 'bl' },
+  { id: 'bingo', name: '數字賓果', icon: '🎯', c: '#f08c2e', d: '#b9631a', url: './bingo/', line: '算出答案圈起來，連成一條線就賓果！', home: 'bl' },
+  { id: 'ttt', name: '圈圈叉叉', icon: '⭕', c: '#2f80ed', d: '#1d5bb0', url: './ttt/', line: '兩隊搶格子，答對才能畫上 O 或 X！', home: 'bl' },
+  { id: 'heart', name: '心臟病', icon: '💓', c: '#e5487a', d: '#ad2b55', url: './heart/', line: '喊的數字等於卡片答案，就趕快拍桌！', home: 'bl' },
+  { id: '99', name: '九九乘法快閃', icon: '⚡', c: '#8b5cf6', d: '#6235c9', url: '../99/', line: '九九乘法翻卡練習、限時挑戰！', home: 'bl' },
 ];
 const POS = { tl: 'top:calc(10px + env(safe-area-inset-top));left:10px', bl: 'bottom:calc(10px + env(safe-area-inset-bottom));left:10px',
               tr: 'top:calc(10px + env(safe-area-inset-top));right:10px', br: 'bottom:calc(10px + env(safe-area-inset-bottom));right:10px' };
 
 const grid = document.getElementById('grid');
 GAMES.forEach(g => {
-  const b = document.createElement('button'); b.className = 'card';
-  b.innerHTML = `<div class="cover" style="background-image:url(${g.cover})"><span class="play">▶</span></div>
-    <div class="body"><h2>${g.name}</h2><p>${g.desc}</p><div class="tags">${g.tags.map(([c, t]) => `<span class="tag ${c}">${t}</span>`).join('')}</div></div>`;
+  const b = document.createElement('button'); b.className = 'tile'; b.style.setProperty('--c', g.c); b.style.setProperty('--d', g.d);
+  b.innerHTML = `<span class="ic">${g.icon}</span><span><h2>${g.name}</h2><p>${g.line}</p></span>`;
   b.onclick = () => openGame(g, true); grid.appendChild(b);
 });
-const soon = document.createElement('div'); soon.className = 'card soon'; soon.textContent = '更多遊戲陸續加入 ✨'; grid.appendChild(soon);
 
 // ===== 開遊戲／回遊戲盒（手機返回鍵也能回來） =====
 const player = document.getElementById('player'), frame = document.getElementById('frame'), homeBtn = document.getElementById('homeBtn');

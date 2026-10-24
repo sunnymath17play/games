@@ -69,3 +69,16 @@ button{font-family:inherit;cursor:pointer;border:none}
   .row>.lab{width:auto}.desc{margin-left:0}
   .dancers{flex-wrap:wrap;gap:4vw 8vw;max-width:94vw}.dancer img{height:min(20vh,38vw)}
 }
+
+/* 玩法說明 */
+.help{flex-direction:column;background:var(--cream);padding:24px;overflow:auto}
+.help h2{margin:0 0 4px;font-size:clamp(36px,5vw,64px);color:var(--green);font-weight:900}
+.help .sub{font-size:clamp(18px,2vw,24px);color:var(--muted);font-weight:700;margin-bottom:18px}
+.hsteps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,90vw),1fr));gap:18px;width:min(1300px,96vw)}
+.hstep{background:#fff;border-radius:26px;padding:22px 20px;box-shadow:0 6px 20px rgba(36,80,60,.08);display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.hstep .no{width:48px;height:48px;border-radius:50%;background:var(--green);color:#fff;font-family:Fredoka;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.hstep .emo{font-size:clamp(46px,6vh,70px);line-height:1}
+.hstep .txt{font-size:clamp(20px,2.2vw,28px);font-weight:900;line-height:1.45}
+.hstep .txt b{color:var(--red)}
+.help .note{margin-top:16px;font-size:clamp(18px,2vw,24px);font-weight:700;color:var(--green2);text-align:center}
+.help .start{margin-top:18px}

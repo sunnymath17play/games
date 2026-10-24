@@ -55,6 +55,7 @@
   <h1>圈圈叉叉 ⭕❌</h1>
   <span class="tag" id="tag"></span>
   <span class="sp"></span>
+  <button class="tbtn" id="helpBtn">❓ 玩法</button>
   <button class="tbtn" id="soundBtn">🔊</button>
   <button class="tbtn fsBtn" id="fsBtn">⛶ 全螢幕</button>
   <button class="tbtn" id="setBtn">⚙️ 設定</button>
@@ -93,6 +94,12 @@
 
 <script src="../shared/common.js"></script>
 <script>
+const HELP = ['⭕❌ 圈圈叉叉怎麼玩', '全班分成兩隊比賽', [
+  ['👫', '分成兩隊：<br><b style="color:var(--o)">⭕ 圈圈隊</b>、<b style="color:var(--x)">❌ 叉叉隊</b>'],
+  ['👆', '輪到的隊伍<b>挑一個格子</b><br>畫面就會出一題'],
+  ['✅', '答對了，那格就畫上<br>自己隊伍的 <b>O</b> 或 <b>X</b><br>答錯了就換對方'],
+  ['🏆', '先把三個記號<br><b>連成一條線</b>的隊伍贏！<br>（橫的、直的、斜的都可以）'],
+], '⭐ 正中間是挑戰題，題目比較難'];
 const KEY = 'ttt_settings';
 let S = loadSettings(KEY, { ops: ALL_OPS, time: 30 }); S.ops = cleanOps(S.ops);
 const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
@@ -181,7 +188,8 @@ function drawSet() {
 }
 $('setBtn').onclick = () => { T = JSON.parse(JSON.stringify(S)); drawSet(); $('setOv').classList.add('show'); };
 $('startBtn').onclick = () => { S = T; saveSettings(KEY, S); $('setOv').classList.remove('show'); score = { O: 0, X: 0 }; starter = 'O'; newRound(); };
-$('setBtn').onclick();
+$('helpBtn').onclick = () => showHelp(...HELP, '知道了');
+showHelp(...HELP, '知道了，開始設定 ▶').then(() => $('setBtn').onclick());
 </script>
 </body>
 </html>
