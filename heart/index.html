@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>心臟病・SUNNY魔法數學</title>
+<link rel="icon" href="../img/icon-192.png" />
+<link rel="apple-touch-icon" href="../img/icon-180.png" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../shared/common.css" />
+<style>
+.main{display:flex;flex-direction:column;align-items:center;padding:0 18px 18px;height:calc(100% - 72px)}
+.score{display:flex;gap:18px;font-size:22px;font-weight:900;margin:4px 0 10px}
+.score span{background:#fff;border-radius:999px;padding:6px 16px}
+.score b{font-family:Fredoka;font-size:28px}
+.table{display:flex;align-items:center;justify-content:center;gap:5vw;flex:1;width:100%}
+.count{display:flex;flex-direction:column;align-items:center}
+.count .lab{font-size:26px;font-weight:900;color:var(--muted)}
+.count .ball{width:min(30vh,22vw);height:min(30vh,22vw);border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-weight:700;font-size:min(18vh,13vw);box-shadow:0 10px 0 #163627}
+.count .ball.beat{animation:beat .3s}
+@keyframes beat{40%{transform:scale(1.12)}}
+.pcard{width:min(56vh,44vw);height:min(40vh,30vw);border-radius:30px;background:#fff;border:6px solid var(--gold);box-shadow:0 10px 0 #e3cf9a;display:flex;align-items:center;justify-content:center;position:relative}
+.pcard .expr{font-size:clamp(46px,6.4vw,110px);color:var(--green)}
+.pcard.flip{animation:flip .35s}
+@keyframes flip{0%{transform:rotateY(90deg)}100%{transform:rotateY(0)}}
+.pcard .res{position:absolute;bottom:10px;font-family:Fredoka;font-size:clamp(28px,3.4vw,50px);font-weight:700;color:var(--red)}
+.ctrl{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.slap{background:var(--red);color:#fff;font-size:34px;font-weight:900;padding:16px 50px;border-radius:999px;box-shadow:0 6px 0 #a3272b}
+.slap:active{transform:translateY(3px);box-shadow:0 2px 0 #a3272b}
+.verdict{font-size:clamp(28px,3.6vw,50px);font-weight:900;min-height:1.4em;text-align:center;margin-top:8px}
+.verdict.ok{color:var(--green2)}.verdict.no{color:var(--red)}
+.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:18px;padding:10px 22px;font-size:24px;font-weight:900;display:none;z-index:30}
+.flash{animation:flashBg .5s}
+@keyframes flashBg{30%{background:#ffd9d9}}
+.howto{font-size:18px;color:var(--muted);font-weight:700;text-align:center;margin-top:6px}
+@media (max-width:900px), (orientation:portrait){
+  .score{gap:6px;font-size:15px}.score span{padding:4px 10px;white-space:nowrap}.score b{font-size:20px}
+  .table{flex-direction:column;gap:20px}.count .ball{width:34vw;height:34vw;font-size:20vw}.pcard{width:90vw;height:46vw}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <img class="logo" src="../shared/img/logo.png" alt="SUNNY魔法數學" />
+  <h1>心臟病 💓</h1>
+  <span class="tag" id="tag"></span>
+  <span class="sp"></span>
+  <button class="tbtn" id="soundBtn">🔊</button>
+  <button class="tbtn fsBtn" id="fsBtn">⛶ 全螢幕</button>
+  <button class="tbtn" id="setBtn">⚙️ 設定</button>
+</div>
+
+<div class="main" id="main">
+  <div class="score"><span>✋ 拍對 <b id="sOk">0</b> / <b id="sGoal">5</b></span><span>😱 錯過 <b id="sMiss">0</b></span><span>🙅 拍錯 <b id="sBad">0</b></span></div>
+  <div class="table">
+    <div class="count"><div class="lab">大家一起喊</div><div class="ball" id="ball">–</div></div>
+    <div class="pcard" id="pcard"><span class="expr" style="color:#c9c2ad">準備</span><div class="res" id="res"></div></div>
+  </div>
+  <div class="verdict" id="verdict"></div>
+  <div class="ctrl">
+    <button class="big-btn" id="playBtn">▶ 開始</button>
+    <button class="slap" id="slapBtn">✋ 拍！</button>
+  </div>
+  <div class="howto">喊的數字＝卡片的答案就拍桌！有人拍了，老師按「✋ 拍！」（或空白鍵）</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- 設定 -->
+<div class="ov dim" id="setOv">
+  <div class="panel">
+    <h2>💓 心臟病・設定</h2>
+    <div class="row"><span class="lab">年級</span><div class="seg" id="sGrade"></div></div>
+    <div class="row"><span class="lab">單元</span><div class="seg" id="sTopics"></div></div>
+    <div class="desc">心臟病要算很快，建議選簡單一點的單元</div>
+    <div class="row"><span class="lab">數到幾</span><div class="seg" id="sMax"></div></div>
+    <div class="row"><span class="lab">速度</span><div class="seg" id="sSpeed"></div></div>
+    <div class="row"><span class="lab">拍對幾次過關</span><div class="seg" id="sGoalSel"></div></div>
+    <div class="row"><span class="lab">電腦一起喊</span><div class="seg" id="sVoice"></div></div>
+    <div class="desc">玩法：全班跟著畫面一起喊 1、2、3…，每喊一個數字就翻一張算式卡。<br>卡片算出來剛好等於喊的數字，就要趕快拍桌！最慢拍的、或是不該拍卻拍的人就「心臟病發作」😝</div>
+    <button class="start" id="startBtn">開始！</button>
+  </div>
+</div>
+
+<script src="../shared/common.js"></script>
+<script>
+const KEY = 'heart_settings';
+let S = loadSettings(KEY, { grade: 3, topics: ['mul', 'div'], max: 10, speed: 3000, goal: 5, voice: 1 });
+let G = {}, beatT = null;
+setupTopButtons();
+const ZH = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三'];
+
+function newGame() {
+  stop();
+  G = { count: 0, card: null, ok: 0, miss: 0, bad: 0, running: false, judged: false, sinceMatch: 0 };
+  $('tag').textContent = topicTag(S); $('sGoal').textContent = S.goal;
+  $('ball').textContent = '–'; $('pcard').innerHTML = '<span class="expr" style="color:#c9c2ad">準備</span><div class="res" id="res"></div>';
+  $('verdict').textContent = ''; drawScore(); $('playBtn').textContent = '▶ 開始';
+}
+function drawScore() { $('sOk').textContent = G.ok; $('sMiss').textContent = G.miss; $('sBad').textContent = G.bad; }
+
+// 每一拍：數字 +1、翻一張新卡
+function beat() {
+  // 上一張該拍沒拍 → 錯過
+  if (G.card && G.card.answer === G.count && !G.judged) { G.miss++; drawScore(); toast(`😱 剛剛 ${exprText(G.card.expr)} = ${G.count}，要拍沒拍！`); SFX.bad(); }
+  G.count = G.count % S.max + 1; G.judged = false;
+  // 大約 1/3 機率出「剛好相等」的卡；太久沒出就一定出；其他的故意出差 1、2 的陷阱
+  let a;
+  G.sinceMatch++;
+  if (Math.random() < .33 || G.sinceMatch >= 5) { a = G.count; G.sinceMatch = 0; }
+  else { do { a = Math.random() < .6 ? G.count + pick([-2, -1, 1, 2]) : rnd(1, S.max); } while (a < 1 || a > S.max || a === G.count); }
+  G.card = makeQ(a, S.topics, S.grade);
+  const ball = $('ball'); ball.textContent = G.count; ball.classList.remove('beat'); void ball.offsetWidth; ball.classList.add('beat');
+  const pc = $('pcard'); pc.innerHTML = exprHTML(G.card.expr) + '<div class="res" id="res"></div>';
+  pc.classList.remove('flip'); void pc.offsetWidth; pc.classList.add('flip'); SFX.flip();
+  $('verdict').textContent = '';
+  if (S.voice) say(ZH[G.count] || String(G.count));
+}
+function say(t) {
+  if (!soundOn || !window.speechSynthesis) return;
+  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'zh-TW'; u.rate = 1.3; speechSynthesis.speak(u);
+}
+function play() { if (G.running) return; G.running = true; $('playBtn').textContent = '⏸ 暫停'; beat(); beatT = setInterval(beat, S.speed); }
+function stop() { clearInterval(beatT); beatT = null; if (G) G.running = false; $('playBtn').textContent = '▶ 繼續'; }
+$('playBtn').onclick = () => { if (G.running) stop(); else play(); };
+
+// 有人拍了
+async function slap() {
+  if (!G.card || G.judged) return;
+  const wasRunning = G.running; stop(); G.judged = true; SFX.slap();
+  document.body.classList.remove('flash'); void document.body.offsetWidth; document.body.classList.add('flash');
+  const hit = G.card.answer === G.count;
+  $('res').textContent = `= ${G.card.answer}`;
+  const v = $('verdict');
+  if (hit) { G.ok++; v.className = 'verdict ok'; v.textContent = `✅ 拍對了！${G.card.answer} = ${G.count}`; SFX.ding(); }
+  else { G.bad++; v.className = 'verdict no'; v.textContent = `🙅 不能拍！答案是 ${G.card.answer}，不是 ${G.count}`; SFX.bad(); }
+  drawScore();
+  if (G.ok >= S.goal) { await sleep(1200); await celebrate('💓 全班過關！', `拍對 <span class="num">${G.ok}</span> 次・錯過 ${G.miss} 次・拍錯 ${G.bad} 次`, '再玩一次 ▶'); newGame(); return; }
+  if (wasRunning) { await sleep(2200); if (!G.running) { G.card = null; play(); } }
+}
+$('slapBtn').onclick = slap;
+document.addEventListener('keydown', e => {
+  if (document.querySelector('.ov.show')) return;
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); slap(); }
+  if (e.key === 'p' || e.key === 'P') { G.running ? stop() : play(); }
+});
+let toastT = null;
+function toast(t) { const el = $('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', 2200); }
+
+// 設定
+let T = {};
+function drawSet() {
+  segRow('sGrade', [[3, '三年級'], [4, '四年級'], [5, '五年級'], [6, '六年級']], T.grade, v => { T.grade = v; T.topics = GRADE_TOPICS[v].slice(); drawSet(); });
+  segRow('sTopics', Object.entries(TOPICS), T.topics, v => { T.topics = T.topics.includes(v) ? T.topics.filter(x => x !== v) : [...T.topics, v]; if (!T.topics.length) T.topics = [v]; drawSet(); }, true);
+  segRow('sMax', [[5, '1～5'], [10, '1～10'], [13, '1～13']], T.max, v => { T.max = v; drawSet(); });
+  segRow('sSpeed', [[4000, '🐢 慢'], [3000, '🚶 中'], [2000, '🐇 快']], T.speed, v => { T.speed = v; drawSet(); });
+  segRow('sGoalSel', [[3, '3 次'], [5, '5 次'], [10, '10 次']], T.goal, v => { T.goal = v; drawSet(); });
+  segRow('sVoice', [[1, '要'], [0, '不要']], T.voice, v => { T.voice = v; drawSet(); });
+}
+$('setBtn').onclick = () => { stop(); T = JSON.parse(JSON.stringify(S)); drawSet(); $('setOv').classList.add('show'); };
+$('startBtn').onclick = () => { S = T; saveSettings(KEY, S); $('setOv').classList.remove('show'); newGame(); };
+newGame(); $('setBtn').onclick();
+</script>
+</body>
+</html>

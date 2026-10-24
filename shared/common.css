@@ -1,0 +1,71 @@
+/* SUNNY 魔法數學・遊戲共用樣式（跟終極密碼同一套顏色） */
+:root{--green:#24503c;--green2:#3f7a5c;--cream:#f7f4ea;--card:#fffdf7;--gold:#f0b93a;--red:#e5484d;--blue:#2f80ed;--ink:#1f3a2d;--muted:#7c8a80}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:"Noto Sans TC",system-ui,sans-serif;color:var(--ink);background:var(--cream);overflow:hidden;user-select:none}
+.num{font-family:"Fredoka","Noto Sans TC",sans-serif}
+button{font-family:inherit;cursor:pointer;border:none}
+
+.top{display:flex;align-items:center;gap:14px;padding:10px 18px;height:72px}
+.top img.logo{height:52px}
+.top h1{margin:0;font-size:28px;font-weight:900;letter-spacing:2px;color:var(--green);white-space:nowrap}
+.top .tag{background:var(--gold);color:#5b3d00;border-radius:999px;padding:4px 12px;font-weight:700;font-size:15px;white-space:nowrap}
+.top .sp{flex:1}
+.tbtn{white-space:nowrap;background:#fff;border:2px solid #dcd6c4;border-radius:14px;padding:8px 14px;font-size:17px;font-weight:700;color:var(--green)}
+.tbtn:active{transform:scale(.95)}
+.card{background:var(--card);border-radius:28px;box-shadow:0 4px 18px rgba(36,80,60,.08)}
+
+.big-btn{background:var(--green);color:#fff;font-size:28px;font-weight:900;padding:14px 40px;border-radius:999px;box-shadow:0 5px 0 #163627}
+.big-btn.gold{background:var(--gold);color:#4a3200;box-shadow:0 5px 0 #c08e1c}
+.big-btn.red{background:var(--red);box-shadow:0 5px 0 #a3272b}
+.big-btn.white{background:#fff;color:var(--green);border:3px solid var(--green);box-shadow:none}
+.big-btn:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.big-btn:disabled{opacity:.4}
+
+/* 算式（含分數） */
+.expr{font-family:"Fredoka","Noto Sans TC",sans-serif;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:.18em}
+.mixed{display:inline-flex;align-items:center;gap:.06em}
+.fr{display:inline-flex;flex-direction:column;align-items:center;font-size:.55em;line-height:1.05;vertical-align:middle}
+.fr span:first-child{border-bottom:.09em solid currentColor;padding:0 .12em}
+
+/* 設定面板 */
+.ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50}
+.ov.show{display:flex}
+.dim{background:rgba(20,40,30,.55)}
+.panel{background:var(--card);border-radius:28px;padding:26px 30px;max-width:780px;width:94%;max-height:94vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.panel h2{margin:0 0 14px;color:var(--green);font-size:30px}
+.row{display:flex;align-items:center;gap:10px;margin:12px 0;flex-wrap:wrap}
+.row>.lab{width:110px;font-weight:900;font-size:19px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{background:#f1efe6;border-radius:999px;padding:8px 16px;font-size:18px;font-weight:700;color:var(--ink)}
+.seg button.on{background:var(--green);color:#fff}
+.desc{font-size:15px;color:var(--muted);margin:-4px 0 4px 120px;line-height:1.5}
+.start{display:block;margin:18px auto 0;background:var(--gold);color:#4a3200;font-size:28px;font-weight:900;padding:12px 60px;border-radius:999px;box-shadow:0 5px 0 #c08e1c}
+.start:active{transform:translateY(3px);box-shadow:0 2px 0 #c08e1c}
+
+/* 勝利：動物跳舞 */
+.celebrate{flex-direction:column;background:radial-gradient(circle,#fffdf0 0%,#ffeeb0 50%,#ffcf5a 100%);text-align:center;overflow:hidden}
+.celebrate .t1{font-size:clamp(44px,6.5vw,92px);font-weight:900;color:var(--green);text-shadow:0 4px 0 #fff;animation:bang .6s cubic-bezier(.2,2,.4,1);position:relative;z-index:2}
+@keyframes bang{0%{transform:scale(0) rotate(-12deg)}100%{transform:scale(1) rotate(0)}}
+.celebrate .t2{font-size:clamp(24px,3.2vw,42px);font-weight:900;color:var(--ink);margin-top:4px;position:relative;z-index:2}
+.celebrate .t2 .num{color:var(--red)}
+.celebrate .big-btn{margin-top:18px;position:relative;z-index:2}
+.dancers{position:relative;z-index:2;display:flex;gap:4vw;align-items:flex-end;justify-content:center;margin:10px 0}
+.dancer{display:flex;justify-content:center;animation:dance .5s infinite alternate ease-in-out;transform-origin:50% 100%}
+.dancer:nth-child(even){animation-delay:-.25s}
+.dancer img{height:min(36vh,18vw);display:block}
+@keyframes dance{0%{transform:translateY(0) rotate(-7deg)}100%{transform:translateY(-9%) rotate(7deg) scaleY(1.04)}}
+.confetti{position:fixed;top:-60px;font-size:38px;pointer-events:none;z-index:1;animation:drop linear forwards}
+@keyframes drop{to{transform:translate(var(--x),110vh) rotate(var(--rot))}}
+.pop{animation:popIn .45s}
+@keyframes popIn{0%{transform:scale(1.5)}100%{transform:scale(1)}}
+.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+
+@media (max-width:900px), (orientation:portrait){
+  body{overflow:auto}
+  .top{height:auto;flex-wrap:wrap;gap:8px;padding:8px 12px}.top h1{font-size:20px}.top img.logo{height:34px}
+  .top .tbtn{font-size:14px;padding:6px 10px}.top .tag{display:none}.fsBtn{display:none}
+  .row>.lab{width:auto}.desc{margin-left:0}
+  .dancers{flex-wrap:wrap;gap:4vw 8vw;max-width:94vw}.dancer img{height:min(20vh,38vw)}
+}

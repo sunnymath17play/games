@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>數字賓果・SUNNY魔法數學</title>
+<link rel="icon" href="../img/icon-192.png" />
+<link rel="apple-touch-icon" href="../img/icon-180.png" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../shared/common.css" />
+<style>
+.main{display:grid;grid-template-columns:1.7fr 1fr;gap:20px;padding:0 18px 18px;height:calc(100% - 72px)}
+.stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative}
+.qno{font-size:26px;font-weight:900;color:var(--green2)}
+.qno b{font-family:Fredoka;font-size:40px;color:var(--red)}
+.qcard{margin:16px 0 10px;min-height:42%;width:92%;display:flex;align-items:center;justify-content:center;border-radius:30px;background:#fff;border:5px solid var(--gold);box-shadow:0 8px 0 #e3cf9a}
+.qcard .expr{font-size:clamp(56px,8vw,130px);color:var(--green)}
+.qcard.flip{animation:flip .5s}
+@keyframes flip{0%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+.hint{font-size:24px;color:var(--muted);font-weight:700;margin-bottom:18px;text-align:center}
+.btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.goal{position:absolute;top:16px;right:22px;background:#fff1c9;color:#8a5d00;border-radius:999px;padding:6px 14px;font-weight:900;font-size:18px}
+.side{padding:18px;display:flex;flex-direction:column;min-height:0}
+.side h3{margin:0 0 10px;color:var(--green);font-size:22px}
+.side h3 small{color:var(--muted);font-size:15px;font-weight:700}
+.hist{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;min-height:0}
+.hi{display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:8px 14px;font-size:30px;animation:popIn .4s}
+.hi .fr{font-size:.65em}
+.hi .n{background:var(--green);color:#fff;border-radius:999px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-size:18px}
+.hi .ans{margin-left:auto;font-family:Fredoka;font-weight:700;color:var(--red);font-size:28px}
+/* 開場：畫格子說明 */
+.intro{flex-direction:column;background:var(--cream);text-align:center;padding:20px}
+.intro h2{font-size:clamp(34px,4.6vw,60px);color:var(--green);margin:0 0 10px}
+.intro p{font-size:clamp(20px,2.4vw,30px);font-weight:700;margin:6px 0;line-height:1.6}
+.intro p b{color:var(--red)}
+.sample{display:grid;gap:6px;margin:18px auto;background:var(--green);padding:6px;border-radius:14px}
+.sample span{width:min(9vh,64px);height:min(9vh,64px);background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-size:min(4.4vh,30px);font-weight:600;color:var(--green)}
+.sample span.c{background:#ffe9a8;position:relative}
+.sample span.c::after{content:'';position:absolute;inset:6px;border:4px solid var(--red);border-radius:50%}
+/* 檢查賓果 */
+.check{flex-direction:column}
+.check .panel{max-width:900px}
+.nums{display:grid;gap:8px;margin:12px 0}
+.nums span{aspect-ratio:1;border-radius:12px;background:#ece9dc;color:#b3ae9c;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-weight:600;font-size:clamp(18px,2.4vw,30px)}
+.nums span.on{background:var(--gold);color:#4a3200}
+.check .btns{margin-top:10px}
+@media (max-width:900px), (orientation:portrait){
+  .main{grid-template-columns:1fr;height:auto}.qcard{min-height:180px}.side{max-height:50vh}.goal{position:static;margin-bottom:6px}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <img class="logo" src="../shared/img/logo.png" alt="SUNNY魔法數學" />
+  <h1>數字賓果 🎯</h1>
+  <span class="tag" id="tag"></span>
+  <span class="sp"></span>
+  <button class="tbtn" id="soundBtn">🔊</button>
+  <button class="tbtn fsBtn" id="fsBtn">⛶ 全螢幕</button>
+  <button class="tbtn" id="setBtn">⚙️ 設定</button>
+</div>
+
+<div class="main">
+  <div class="card stage">
+    <div class="goal" id="goal"></div>
+    <div class="qno" id="qno"></div>
+    <div class="qcard" id="qcard"><span class="expr" style="color:#c9c2ad">？</span></div>
+    <div class="hint" id="hint">算出答案，在自己的賓果卡上圈起來！</div>
+    <div class="btns">
+      <button class="big-btn" id="nextBtn">下一題 ▶</button>
+      <button class="big-btn gold" id="bingoBtn">🙋 有人賓果！</button>
+    </div>
+  </div>
+  <div class="card side">
+    <h3>出過的題目 <small>（算錯的可以再算一次）</small></h3>
+    <div class="hist" id="hist"></div>
+  </div>
+</div>
+
+<!-- 開場：請小朋友畫格子 -->
+<div class="ov intro" id="introOv">
+  <h2>🎯 數字賓果</h2>
+  <p id="introText"></p>
+  <div class="sample" id="sample"></div>
+  <p>電腦出題 → 算出答案 → 在卡上把那個數字<b>圈起來</b><br>算錯就會圈錯格喔！連成 <b id="introLines">1</b> 條線就喊「<b>賓果！</b>」</p>
+  <button class="start" id="introGo">準備好了，開始出題！</button>
+</div>
+
+<!-- 檢查賓果 -->
+<div class="ov dim check" id="checkOv">
+  <div class="panel">
+    <h2>🙋 有人喊賓果！來檢查</h2>
+    <div style="font-size:19px;font-weight:700">請他唸出連成線的數字，黃色的是<b>已經出過</b>的答案：</div>
+    <div class="nums" id="nums"></div>
+    <div class="btns">
+      <button class="big-btn" id="okBtn">🎉 賓果成功！</button>
+      <button class="big-btn white" id="noBtn">❌ 不對喔，繼續</button>
+    </div>
+  </div>
+</div>
+
+<!-- 設定 -->
+<div class="ov dim" id="setOv">
+  <div class="panel">
+    <h2>🎯 數字賓果・設定</h2>
+    <div class="row"><span class="lab">年級</span><div class="seg" id="sGrade"></div></div>
+    <div class="row"><span class="lab">單元</span><div class="seg" id="sTopics"></div></div>
+    <div class="desc">可以複選；選年級會自動帶入常用單元</div>
+    <div class="row"><span class="lab">賓果卡</span><div class="seg" id="sSize"></div></div>
+    <div class="row"><span class="lab">幾條線賓果</span><div class="seg" id="sLines"></div></div>
+    <button class="start" id="startBtn">開始！</button>
+  </div>
+</div>
+
+<script src="../shared/common.js"></script>
+<script>
+const KEY = 'bingo_settings';
+let S = loadSettings(KEY, { grade: 3, topics: GRADE_TOPICS[3], size: 5, lines: 1 });
+let G = {};
+setupTopButtons();
+
+function newGame() {
+  const N = S.size * S.size;
+  G = { N, pool: shuffle(Array.from({ length: N }, (_, i) => i + 1)), called: [], seen: new Set() };
+  $('tag').textContent = topicTag(S);
+  $('goal').textContent = `${S.size}×${S.size}・連 ${S.lines} 條線`;
+  $('qno').innerHTML = '準備開始'; $('hist').innerHTML = '';
+  $('qcard').innerHTML = '<span class="expr" style="color:#c9c2ad">？</span>';
+  $('nextBtn').disabled = false;
+  showIntro();
+}
+function showIntro() {
+  $('introText').innerHTML = `請在紙上畫 <b>${S.size}×${S.size}</b> 的格子，把 <b>1～${G.N}</b> 隨便填進去（每個數字填一次）`;
+  $('introLines').textContent = S.lines;
+  const sm = $('sample'), demo = shuffle(Array.from({ length: G.N }, (_, i) => i + 1));
+  sm.style.gridTemplateColumns = `repeat(${S.size},auto)`;
+  sm.innerHTML = demo.map((n, i) => `<span class="${i % (S.size + 1) === 0 ? 'c' : ''}">${n}</span>`).join('');
+  $('introOv').classList.add('show');
+}
+$('introGo').onclick = () => { $('introOv').classList.remove('show'); nextQ(); };
+
+function nextQ() {
+  if (!G.pool.length) { $('qno').innerHTML = '題目出完了！'; $('nextBtn').disabled = true; return; }
+  const a = G.pool.pop();
+  let q; for (let i = 0; i < 8; i++) { q = makeQ(a, S.topics, S.grade); if (!G.seen.has(q.expr)) break; }
+  G.seen.add(q.expr); G.called.push(q);
+  const k = G.called.length;
+  $('qno').innerHTML = `第 <b>${k}</b> 題`;
+  const c = $('qcard'); c.innerHTML = exprHTML(q.expr) + '<span class="expr" style="color:var(--muted);margin-left:.2em">= ?</span>';
+  c.classList.remove('flip'); void c.offsetWidth; c.classList.add('flip'); SFX.flip();
+  const h = document.createElement('div'); h.className = 'hi';
+  h.innerHTML = `<span class="n">${k}</span>${exprHTML(q.expr)}`;
+  $('hist').prepend(h);
+}
+$('nextBtn').onclick = nextQ;
+document.addEventListener('keydown', e => {
+  if (document.querySelector('.ov.show')) return;
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextQ(); }
+});
+
+$('bingoBtn').onclick = () => {
+  const on = new Set(G.called.map(q => q.answer)), nums = $('nums');
+  nums.style.gridTemplateColumns = `repeat(${S.size === 4 ? 8 : 10},1fr)`;
+  nums.innerHTML = Array.from({ length: G.N }, (_, i) => `<span class="${on.has(i + 1) ? 'on' : ''}">${i + 1}</span>`).join('');
+  $('checkOv').classList.add('show'); SFX.ding();
+};
+$('noBtn').onclick = () => { $('checkOv').classList.remove('show'); SFX.bad(); };
+$('okBtn').onclick = async () => {
+  $('checkOv').classList.remove('show');
+  // 賓果成功後，題目旁邊公布答案，大家一起對
+  document.querySelectorAll('#hist .hi').forEach((h, i) => { const q = G.called[G.called.length - 1 - i];
+    if (!h.querySelector('.ans')) h.insertAdjacentHTML('beforeend', `<span class="ans">${q.answer}</span>`); });
+  await celebrate('🎉 賓果！', `出了 <span class="num">${G.called.length}</span> 題就連線了！`, '繼續玩（看誰第二個賓果）▶');
+};
+
+// 設定
+let T = {};
+function drawSet() {
+  segRow('sGrade', [[3, '三年級'], [4, '四年級'], [5, '五年級'], [6, '六年級']], T.grade, v => { T.grade = v; T.topics = GRADE_TOPICS[v].slice(); drawSet(); });
+  segRow('sTopics', Object.entries(TOPICS), T.topics, v => { T.topics = T.topics.includes(v) ? T.topics.filter(x => x !== v) : [...T.topics, v]; if (!T.topics.length) T.topics = [v]; drawSet(); }, true);
+  segRow('sSize', [[4, '4×4（1～16）'], [5, '5×5（1～25）']], T.size, v => { T.size = v; drawSet(); });
+  segRow('sLines', [[1, '1 條'], [2, '2 條'], [3, '3 條']], T.lines, v => { T.lines = v; drawSet(); });
+}
+function openSet() { T = JSON.parse(JSON.stringify(S)); drawSet(); $('setOv').classList.add('show'); }
+$('setBtn').onclick = openSet;
+$('startBtn').onclick = () => { S = T; saveSettings(KEY, S); $('setOv').classList.remove('show'); newGame(); };
+
+openSet();
+</script>
+</body>
+</html>
