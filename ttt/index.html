@@ -83,9 +83,8 @@
 <div class="ov dim" id="setOv">
   <div class="panel">
     <h2>⭕❌ 圈圈叉叉・設定</h2>
-    <div class="row"><span class="lab">年級</span><div class="seg" id="sGrade"></div></div>
-    <div class="row"><span class="lab">單元</span><div class="seg" id="sTopics"></div></div>
-    <div class="desc">可以複選；正中間那格是「⭐挑戰題」，數字比較大</div>
+    <div class="row"><span class="lab">算式</span><div class="seg" id="sOps"></div></div>
+    <div class="desc">都是兩個數字的計算，可以複選</div>
     <div class="row"><span class="lab">每題時間</span><div class="seg" id="sTime"></div></div>
     <div class="desc">兩隊輪流挑一格答題，答對才能畫上自己的 O 或 X，先連成一條線的隊伍贏！</div>
     <button class="start" id="startBtn">開始！</button>
@@ -95,21 +94,23 @@
 <script src="../shared/common.js"></script>
 <script>
 const KEY = 'ttt_settings';
-let S = loadSettings(KEY, { grade: 3, topics: GRADE_TOPICS[3], time: 30 });
+let S = loadSettings(KEY, { ops: ALL_OPS, time: 30 }); S.ops = cleanOps(S.ops);
 const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
 const NAME = { O: '圈圈隊', X: '叉叉隊' }, COLOR = { O: 'var(--o)', X: 'var(--x)' };
 let score = { O: 0, X: 0 }, starter = 'O', G = {};
 setupTopButtons();
 
 // 每格答案的範圍（正中間⭐挑戰題比較大）
-function answerFor(cell) {
-  const base = { 3: [6, 81], 4: [12, 150], 5: [6, 60], 6: [8, 90] }[S.grade];
-  return cell === 4 ? rnd(Math.round(base[1] * .6), Math.round(base[1] * 1.6)) : rnd(base[0], base[1]);
+// 找一個選的運算出得了的答案（只選乘法就不會出質數）
+function qFor(cell) {
+  const [lo, hi] = cell === 4 ? [31, 81] : [4, 30];
+  for (let i = 0; i < 80; i++) { const a = rnd(lo, hi), ops = S.ops.filter(t => BUILD[t](a)); if (ops.length) return makeQ(a, ops); }
+  return makeQ(rnd(lo, hi), S.ops);
 }
 function newRound() {
   G = { cells: Array(9).fill(''), turn: starter, over: false };
   starter = starter === 'O' ? 'X' : 'O'; // 下一局換另一隊先
-  $('tag').textContent = topicTag(S);
+  $('tag').textContent = opsTag(S.ops);
   draw(); msg(`${NAME[G.turn]}先！挑一格答題`);
 }
 function draw() {
@@ -128,7 +129,7 @@ function msg(t) { $('msg').innerHTML = t; }
 let timerT = null;
 function ask(i) {
   if (G.over) return; SFX.flip();
-  const q = makeQ(answerFor(i), S.topics, S.grade);
+  const q = qFor(i);
   $('qWho').innerHTML = `<span style="color:${COLOR[G.turn]}">${NAME[G.turn]}</span> 挑第 ${i + 1} 格${i === 4 ? '・⭐挑戰題' : ''}`;
   $('qExpr').innerHTML = exprHTML(q.expr) + '<span class="expr" style="color:var(--muted)">&nbsp;= ?</span>';
   $('qAns').textContent = '';
@@ -175,8 +176,7 @@ $('resetBtn').onclick = () => { starter = G.turn === 'O' ? 'O' : 'X'; newRound()
 // 設定
 let T = {};
 function drawSet() {
-  segRow('sGrade', [[3, '三年級'], [4, '四年級'], [5, '五年級'], [6, '六年級']], T.grade, v => { T.grade = v; T.topics = GRADE_TOPICS[v].slice(); drawSet(); });
-  segRow('sTopics', Object.entries(TOPICS), T.topics, v => { T.topics = T.topics.includes(v) ? T.topics.filter(x => x !== v) : [...T.topics, v]; if (!T.topics.length) T.topics = [v]; drawSet(); }, true);
+  segRow('sOps', Object.entries(OPS), T.ops, v => { T.ops = T.ops.includes(v) ? T.ops.filter(x => x !== v) : [...T.ops, v]; if (!T.ops.length) T.ops = [v]; drawSet(); }, true);
   segRow('sTime', [[0, '不計時'], [20, '20 秒'], [30, '30 秒'], [60, '60 秒']], T.time, v => { T.time = v; drawSet(); });
 }
 $('setBtn').onclick = () => { T = JSON.parse(JSON.stringify(S)); drawSet(); $('setOv').classList.add('show'); };

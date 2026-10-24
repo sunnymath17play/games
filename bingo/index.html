@@ -103,9 +103,8 @@
 <div class="ov dim" id="setOv">
   <div class="panel">
     <h2>🎯 數字賓果・設定</h2>
-    <div class="row"><span class="lab">年級</span><div class="seg" id="sGrade"></div></div>
-    <div class="row"><span class="lab">單元</span><div class="seg" id="sTopics"></div></div>
-    <div class="desc">可以複選；選年級會自動帶入常用單元</div>
+    <div class="row"><span class="lab">算式</span><div class="seg" id="sOps"></div></div>
+    <div class="desc">都是兩個數字的計算，可以複選</div>
     <div class="row"><span class="lab">賓果卡</span><div class="seg" id="sSize"></div></div>
     <div class="row"><span class="lab">幾條線賓果</span><div class="seg" id="sLines"></div></div>
     <button class="start" id="startBtn">開始！</button>
@@ -115,14 +114,14 @@
 <script src="../shared/common.js"></script>
 <script>
 const KEY = 'bingo_settings';
-let S = loadSettings(KEY, { grade: 3, topics: GRADE_TOPICS[3], size: 5, lines: 1 });
+let S = loadSettings(KEY, { ops: ALL_OPS, size: 5, lines: 1 }); S.ops = cleanOps(S.ops);
 let G = {};
 setupTopButtons();
 
 function newGame() {
   const N = S.size * S.size;
   G = { N, pool: shuffle(Array.from({ length: N }, (_, i) => i + 1)), called: [], seen: new Set() };
-  $('tag').textContent = topicTag(S);
+  $('tag').textContent = opsTag(S.ops);
   $('goal').textContent = `${S.size}×${S.size}・連 ${S.lines} 條線`;
   $('qno').innerHTML = '準備開始'; $('hist').innerHTML = '';
   $('qcard').innerHTML = '<span class="expr" style="color:#c9c2ad">？</span>';
@@ -142,7 +141,7 @@ $('introGo').onclick = () => { $('introOv').classList.remove('show'); nextQ(); }
 function nextQ() {
   if (!G.pool.length) { $('qno').innerHTML = '題目出完了！'; $('nextBtn').disabled = true; return; }
   const a = G.pool.pop();
-  let q; for (let i = 0; i < 8; i++) { q = makeQ(a, S.topics, S.grade); if (!G.seen.has(q.expr)) break; }
+  let q; for (let i = 0; i < 8; i++) { q = makeQ(a, S.ops); if (!G.seen.has(q.expr)) break; }
   G.seen.add(q.expr); G.called.push(q);
   const k = G.called.length;
   $('qno').innerHTML = `第 <b>${k}</b> 題`;
@@ -176,8 +175,7 @@ $('okBtn').onclick = async () => {
 // 設定
 let T = {};
 function drawSet() {
-  segRow('sGrade', [[3, '三年級'], [4, '四年級'], [5, '五年級'], [6, '六年級']], T.grade, v => { T.grade = v; T.topics = GRADE_TOPICS[v].slice(); drawSet(); });
-  segRow('sTopics', Object.entries(TOPICS), T.topics, v => { T.topics = T.topics.includes(v) ? T.topics.filter(x => x !== v) : [...T.topics, v]; if (!T.topics.length) T.topics = [v]; drawSet(); }, true);
+  segRow('sOps', Object.entries(OPS), T.ops, v => { T.ops = T.ops.includes(v) ? T.ops.filter(x => x !== v) : [...T.ops, v]; if (!T.ops.length) T.ops = [v]; drawSet(); }, true);
   segRow('sSize', [[4, '4×4（1～16）'], [5, '5×5（1～25）']], T.size, v => { T.size = v; drawSet(); });
   segRow('sLines', [[1, '1 條'], [2, '2 條'], [3, '3 條']], T.lines, v => { T.lines = v; drawSet(); });
 }

@@ -54,65 +54,26 @@ function setupTopButtons() {
   const fb = $('fsBtn'); if (fb) fb.onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); };
 }
 
-// ================= 出題：先決定答案 a，再依單元出一個算式 =================
-const TOPICS = { add: '加減', mul: '乘法', div: '除法', mix: '四則混合', dec: '小數', frac: '分數' };
-const GRADE_TOPICS = { 3: ['add', 'mul', 'div'], 4: ['mul', 'div', 'mix'], 5: ['mix', 'dec', 'frac'], 6: ['mix', 'dec', 'frac'] };
-const d1 = x => (x / 10).toFixed(1);
+// ================= 出題：先決定答案 a，再出「兩個數字」的加減乘除 =================
+const OPS = { add: '➕ 加', sub: '➖ 減', mul: '✖️ 乘', div: '➗ 除' };
+const ALL_OPS = ['add', 'sub', 'mul', 'div'];
 const BUILD = {
-  add(a, g) {
-    const big = g >= 4 ? 2000 : 600;
-    if (Math.random() < .5) { const y = rnd(11, big); return `${a + y} − ${y}`; }
-    const z = rnd(11, Math.round(big / 3)), s = a + z, x = rnd(1, s - 1); return `${x} + ${s - x} − ${z}`;
-  },
-  mul(a, g) {
-    if (a < 4) return null;
-    const pairs = []; for (let p = 2; p <= 9; p++) if (a % p === 0 && a / p >= 2 && a / p <= (g >= 4 ? 99 : 9)) pairs.push(p);
-    if (pairs.length && Math.random() < .65) { const p = pick(pairs); return Math.random() < .5 ? `${p} × ${a / p}` : `${a / p} × ${p}`; }
-    for (let i = 0; i < 30; i++) { const p = rnd(2, 9), q = Math.floor(a / p), r = a - p * q; if (q < 2 || (g < 4 && q > 9)) continue;
-      if (r === 0) return `${q} × ${p}`; if (Math.random() < .5) return `${q} × ${p} + ${r}`;
-      if ((q + 1) * p - a > 0 && (g >= 4 || q + 1 <= 9)) return `${q + 1} × ${p} − ${(q + 1) * p - a}`; return `${q} × ${p} + ${r}`; }
-    return null;
-  },
-  div(a, g) { const d = g >= 4 ? rnd(2, 25) : rnd(2, 9); return `${a * d} ÷ ${d}`; },
-  mix(a, g) {
-    for (let i = 0; i < 60; i++) {
-      const f = rnd(1, 5);
-      if (f === 1) { const x = rnd(2, 9), y = rnd(2, 9), z = x * y - a; if (z >= 1) return `${x} × ${y} − ${z}`; }
-      if (f === 2) { const y = rnd(2, 9), z = rnd(2, 9), x = a - y * z; if (x >= 1) return `${x} + ${y} × ${z}`; }
-      if (f === 3) { const z = rnd(2, 9); if (a % z === 0 && a / z >= 2) { const s = a / z, x = rnd(1, s - 1); return `(${x} + ${s - x}) × ${z}`; } }
-      if (f === 4) { if (a >= 2) { const y = rnd(2, 9), q = rnd(1, a - 1); return `${q * y} ÷ ${y} + ${a - q}`; } }
-      if (f === 5) { const x = rnd(2, 9); if (a % x === 0) { const z = rnd(1, 20); return `${x} × (${a / x + z} − ${z})`; } }
-    }
-    return null;
-  },
-  dec(a) {
-    const opts = [];
-    { let p; do p = rnd(1, 10 * a - 1); while (p % 10 === 0 && 10 * a > 10); if (p % 10) opts.push(`${d1(p)} + ${d1(10 * a - p)}`); }
-    { let y; do y = rnd(1, 99); while (y % 10 === 0); opts.push(`${d1(10 * a + y)} − ${d1(y)}`); }
-    opts.push(`0.5 × ${2 * a}`); if (a <= 30) opts.push(`0.25 × ${4 * a}`);
-    if (a % 3 === 0) opts.push(`1.5 × ${a / 1.5}`); if (a % 5 === 0) opts.push(`2.5 × ${a / 2.5}`); if (a % 6 === 0) opts.push(`1.2 × ${a / 1.2}`);
-    return pick(opts);
-  },
-  frac(a) {
-    const opts = [];
-    if (a >= 2) { const d = rnd(3, 9), n = pick(coprimes(d)), x = rnd(0, a - 1), y = a - 1 - x;
-      opts.push(`${x || ''}[${n}/${d}] + ${y || ''}[${d - n}/${d}]`); }
-    const fs = []; for (let d = 2; d <= 9; d++) for (let n = 1; n < d; n++) if (gcd(n, d) === 1 && a % n === 0) fs.push([n, d]);
-    if (fs.length) { const [n, d] = pick(fs); opts.push(`[${n}/${d}] × ${a / n * d}`); }
-    { const d = rnd(3, 9), n = pick(coprimes(d)), y = rnd(1, 5); opts.push(`${a + y}[${n}/${d}] − ${y}[${n}/${d}]`); }
-    return pick(opts);
-  },
+  add(a) { if (a < 2) return null; const x = rnd(1, a - 1); return `${x} + ${a - x}`; },
+  sub(a) { if (a > 98) return null; const y = rnd(1, 99 - a); return `${a + y} − ${y}`; },
+  mul(a) { const ps = []; for (let p = 2; p <= 9; p++) if (a % p === 0 && a / p >= 2 && a / p <= 9) ps.push(p); if (!ps.length) return null; const p = pick(ps); return `${p} × ${a / p}`; },
+  div(a) { if (a > 9) return null; const d = rnd(2, 9); return `${a * d} ÷ ${d}`; }, // 只出九九乘法反過來
 };
-// 算式字串 → HTML（[n/d] 是分數，前面的整數是帶分數的整數部分）
-function exprHTML(s) {
-  return '<span class="expr">' + s.replace(/(\d*)\[(\d+)\/(\d+)\]/g, (m, w, n, d) => `<span class="mixed">${w}<span class="fr"><span>${n}</span><span>${d}</span></span></span>`) + '</span>';
+// 算式字串 → HTML
+function exprHTML(s) { return '<span class="expr">' + s + '</span>'; }
+function exprText(s) { return s; }
+// 給答案 a 出一題；ops 是要用的運算（選的運算出不了這個答案，就換別的運算）
+function makeQ(a, ops) {
+  for (const t of shuffle(ops.slice())) { const e = BUILD[t](a); if (e) return { expr: e, answer: a, op: t }; }
+  for (const t of shuffle(ALL_OPS.slice())) { const e = BUILD[t](a); if (e) return { expr: e, answer: a, op: t }; }
+  return { expr: `${a + 1} − 1`, answer: a, op: 'sub' };
 }
-function exprText(s) { return s.replace(/(\d*)\[(\d+)\/(\d+)\]/g, (m, w, n, d) => (w ? w + '又' : '') + n + '/' + d); }
-// 給答案 a 出一題；topics 是單元代號陣列，g 是年級
-function makeQ(a, topics, g) {
-  for (const t of shuffle(topics.slice())) { const e = BUILD[t](a, g); if (e) return { expr: e, answer: a, topic: t }; }
-  return { expr: BUILD.add(a, g), answer: a, topic: 'add' };
-}
+function cleanOps(o) { const r = (o || []).filter(x => ALL_OPS.includes(x)); return r.length ? r : ALL_OPS.slice(); }
+function opsTag(ops) { return ops.map(t => OPS[t].split(' ')[1]).join('、'); }
 
 // ================= 設定面板（年級＋單元） =================
 // segRow(容器id, 選項[[值,文字]], 目前值, 選了之後)
@@ -126,7 +87,6 @@ function segRow(id, opts, cur, onPick, multi) {
 }
 function loadSettings(key, def) { try { return Object.assign({}, def, JSON.parse(localStorage.getItem(key) || '{}')); } catch (_) { return Object.assign({}, def); } }
 function saveSettings(key, s) { localStorage.setItem(key, JSON.stringify(s)); }
-function topicTag(s) { return `${s.grade}年級・` + s.topics.map(t => TOPICS[t]).join('、'); }
 
 // ================= 動物跳舞慶祝 =================
 const ANIMALS = ['monkey', 'panda', 'frog', 'chick'];

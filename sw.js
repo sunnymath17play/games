@@ -1,5 +1,5 @@
 // 遊戲盒 service worker：有網路就拿最新版，沒網路才用存起來的（遊戲本身還是要網路）
-const CACHE = 'gamebox-v3';
+const CACHE = 'gamebox-v4';
 const FILES = ['./', 'index.html', 'manifest.json', 'img/logo.png', 'img/hulk_wave.png', 'img/icon-192.png', 'img/icon-512.png',
   'img/cover_password.jpg', 'img/cover_99.jpg', 'img/cover_bingo.jpg', 'img/cover_ttt.jpg', 'img/cover_heart.jpg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });

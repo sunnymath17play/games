@@ -69,9 +69,8 @@
 <div class="ov dim" id="setOv">
   <div class="panel">
     <h2>💓 心臟病・設定</h2>
-    <div class="row"><span class="lab">年級</span><div class="seg" id="sGrade"></div></div>
-    <div class="row"><span class="lab">單元</span><div class="seg" id="sTopics"></div></div>
-    <div class="desc">心臟病要算很快，建議選簡單一點的單元</div>
+    <div class="row"><span class="lab">算式</span><div class="seg" id="sOps"></div></div>
+    <div class="desc">都是兩個數字的計算，可以複選</div>
     <div class="row"><span class="lab">數到幾</span><div class="seg" id="sMax"></div></div>
     <div class="row"><span class="lab">速度</span><div class="seg" id="sSpeed"></div></div>
     <div class="row"><span class="lab">拍對幾次過關</span><div class="seg" id="sGoalSel"></div></div>
@@ -84,7 +83,7 @@
 <script src="../shared/common.js"></script>
 <script>
 const KEY = 'heart_settings';
-let S = loadSettings(KEY, { grade: 3, topics: ['mul', 'div'], max: 10, speed: 3000, goal: 5, voice: 1 });
+let S = loadSettings(KEY, { ops: ALL_OPS, max: 10, speed: 3000, goal: 5, voice: 1 }); S.ops = cleanOps(S.ops);
 let G = {}, beatT = null;
 setupTopButtons();
 const ZH = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三'];
@@ -92,7 +91,7 @@ const ZH = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '
 function newGame() {
   stop();
   G = { count: 0, card: null, ok: 0, miss: 0, bad: 0, running: false, judged: false, sinceMatch: 0 };
-  $('tag').textContent = topicTag(S); $('sGoal').textContent = S.goal;
+  $('tag').textContent = opsTag(S.ops); $('sGoal').textContent = S.goal;
   $('ball').textContent = '–'; $('pcard').innerHTML = '<span class="expr" style="color:#c9c2ad">準備</span><div class="res" id="res"></div>';
   $('verdict').textContent = ''; drawScore(); $('playBtn').textContent = '▶ 開始';
 }
@@ -108,7 +107,7 @@ function beat() {
   G.sinceMatch++;
   if (Math.random() < .33 || G.sinceMatch >= 5) { a = G.count; G.sinceMatch = 0; }
   else { do { a = Math.random() < .6 ? G.count + pick([-2, -1, 1, 2]) : rnd(1, S.max); } while (a < 1 || a > S.max || a === G.count); }
-  G.card = makeQ(a, S.topics, S.grade);
+  G.card = makeQ(a, S.ops);
   const ball = $('ball'); ball.textContent = G.count; ball.classList.remove('beat'); void ball.offsetWidth; ball.classList.add('beat');
   const pc = $('pcard'); pc.innerHTML = exprHTML(G.card.expr) + '<div class="res" id="res"></div>';
   pc.classList.remove('flip'); void pc.offsetWidth; pc.classList.add('flip'); SFX.flip();
@@ -149,8 +148,7 @@ function toast(t) { const el = $('toast'); el.textContent = t; el.style.display 
 // 設定
 let T = {};
 function drawSet() {
-  segRow('sGrade', [[3, '三年級'], [4, '四年級'], [5, '五年級'], [6, '六年級']], T.grade, v => { T.grade = v; T.topics = GRADE_TOPICS[v].slice(); drawSet(); });
-  segRow('sTopics', Object.entries(TOPICS), T.topics, v => { T.topics = T.topics.includes(v) ? T.topics.filter(x => x !== v) : [...T.topics, v]; if (!T.topics.length) T.topics = [v]; drawSet(); }, true);
+  segRow('sOps', Object.entries(OPS), T.ops, v => { T.ops = T.ops.includes(v) ? T.ops.filter(x => x !== v) : [...T.ops, v]; if (!T.ops.length) T.ops = [v]; drawSet(); }, true);
   segRow('sMax', [[5, '1～5'], [10, '1～10'], [13, '1～13']], T.max, v => { T.max = v; drawSet(); });
   segRow('sSpeed', [[4000, '🐢 慢'], [3000, '🚶 中'], [2000, '🐇 快']], T.speed, v => { T.speed = v; drawSet(); });
   segRow('sGoalSel', [[3, '3 次'], [5, '5 次'], [10, '10 次']], T.goal, v => { T.goal = v; drawSet(); });
