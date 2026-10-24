@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f0b93a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="數學遊戲盒" />
+<title>SUNNY魔法數學・遊戲盒</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="img/icon-192.png" />
+<link rel="apple-touch-icon" href="img/icon-180.png" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
+<style>
+:root{--green:#24503c;--gold:#f0b93a;--cream:#f7f4ea;--ink:#1f3a2d;--muted:#7c8a80}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:"Noto Sans TC",system-ui,sans-serif;color:var(--ink);background:
+  radial-gradient(circle at 15% 0%,#fff3c4 0,transparent 45%),radial-gradient(circle at 100% 100%,#e3f1dc 0,transparent 50%),var(--cream);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button{font-family:inherit;cursor:pointer;border:none}
+
+.head{display:flex;align-items:center;gap:16px;max-width:1180px;margin:0 auto;padding:22px 24px 8px}
+.head .logo{height:44px}
+.head h1{margin:0;font-size:clamp(26px,3.4vw,40px);font-weight:900;color:var(--green);letter-spacing:2px;white-space:nowrap}
+.head h1 small{display:block;font-size:.42em;color:var(--muted);letter-spacing:1px;font-weight:700}
+.head .sp{flex:1}
+.head .hulk{height:110px;margin:-20px 0 -14px;animation:wave 2.4s infinite ease-in-out;transform-origin:50% 100%}
+@keyframes wave{50%{transform:rotate(-4deg) translateY(-4px)}}
+.install{background:#fff;border:2px solid #e2d9bd;border-radius:999px;padding:8px 16px;font-size:16px;font-weight:700;color:var(--green);white-space:nowrap}
+
+.grid{max-width:1180px;margin:0 auto;padding:16px 24px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
+.card{background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 6px 22px rgba(36,80,60,.10);text-align:left;padding:0;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(36,80,60,.16)}
+.card:active{transform:scale(.97)}
+.card .cover{position:relative;aspect-ratio:16/10;background:#eee center/cover}
+.card .cover .play{position:absolute;right:14px;bottom:-26px;width:58px;height:58px;border-radius:50%;background:var(--gold);color:#4a3200;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 #c08e1c;border:4px solid #fff}
+.card .body{padding:16px 20px 20px}
+.card h2{margin:0 0 6px;font-size:26px;font-weight:900;color:var(--green)}
+.card p{margin:0 0 12px;font-size:16px;color:#4d5c53;line-height:1.55}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;background:#f1efe6;color:#5c6a61}
+.tag.g{background:#fff1c9;color:#8a5d00}
+.tag.b{background:#e3eefc;color:#2a5ea8}
+.soon{border:3px dashed #d9d0b6;background:transparent;box-shadow:none;align-items:center;justify-content:center;min-height:240px;color:var(--muted);font-size:20px;font-weight:700;cursor:default}
+.soon:hover{transform:none;box-shadow:none}
+
+/* 遊戲畫面（同一個 App 裡開，左上角回遊戲盒） */
+#player{position:fixed;inset:0;background:#fff;display:none;z-index:10}
+#player.show{display:block}
+#player iframe{width:100%;height:100%;border:0;display:block}
+#homeBtn{position:fixed;z-index:11;display:none;background:rgba(36,80,60,.88);color:#fff;font-size:15px;font-weight:700;border-radius:999px;padding:8px 14px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+#player.show ~ #homeBtn{display:block}
+
+/* 加到主畫面說明 */
+.ov{position:fixed;inset:0;background:rgba(20,40,30,.55);display:none;align-items:center;justify-content:center;z-index:20}
+.ov.show{display:flex}
+.panel{background:#fffdf7;border-radius:26px;padding:24px 26px;max-width:460px;width:92%;font-size:18px;line-height:1.7}
+.panel h3{margin:0 0 8px;color:var(--green);font-size:24px}
+.panel b{color:var(--green)}
+.panel button{margin-top:12px;background:var(--green);color:#fff;font-size:18px;font-weight:700;padding:10px 26px;border-radius:999px}
+
+@media (max-width:640px){
+  .head{padding:16px 16px 4px;gap:10px}.head .logo{height:32px}.head .hulk{height:76px}
+  .install{font-size:14px;padding:6px 12px}
+  .grid{padding:12px 16px 30px;gap:18px}
+}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <img class="logo" src="img/logo.png" alt="SUNNY魔法數學" />
+  <h1>數學遊戲盒<small>SUNNY 魔法數學</small></h1>
+  <span class="sp"></span>
+  <button class="install" id="installBtn">📲 加到主畫面</button>
+  <img class="hulk" src="img/hulk_wave.png" alt="" />
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div id="player"><iframe id="frame" allow="fullscreen; autoplay" allowfullscreen></iframe></div>
+<button id="homeBtn">🏠 回遊戲盒</button>
+
+<div class="ov" id="howOv">
+  <div class="panel" id="howText"></div>
+</div>
+
+<script>
+// ===== 遊戲清單：新增遊戲就在這裡加一筆 =====
+// home：「回遊戲盒」按鈕放哪個角落，避開遊戲自己的按鈕
+const GAMES = [
+  { id: 'password', name: '終極密碼 💣', url: '../password/', cover: 'img/cover_password.jpg',
+    desc: '猜密碼、剪範圍、拆炸彈！可以分隊、用算式猜，還有浩克挑戰。',
+    tags: [['g', '全年級'], ['b', '投影全班玩']], home: 'bl' },
+  { id: 'angle', name: '角度王者之路 📐', url: '../angle/', cover: 'img/cover_angle.jpg',
+    desc: '量角器、旋轉角、找錯誤、鐘面角度，一關一關闖到王者。',
+    tags: [['g', '四年級'], ['', '自己玩']], home: 'tl' },
+  { id: '99', name: '九九乘法快閃 ⚡', url: '../99/', cover: 'img/cover_99.jpg',
+    desc: '練習模式翻卡慢慢練，挑戰模式 20 題限時，看自己進步多少。',
+    tags: [['g', '二、三年級'], ['', '自己玩']], home: 'bl' },
+];
+const POS = { tl: 'top:calc(10px + env(safe-area-inset-top));left:10px', bl: 'bottom:calc(10px + env(safe-area-inset-bottom));left:10px',
+              tr: 'top:calc(10px + env(safe-area-inset-top));right:10px', br: 'bottom:calc(10px + env(safe-area-inset-bottom));right:10px' };
+
+const grid = document.getElementById('grid');
+GAMES.forEach(g => {
+  const b = document.createElement('button'); b.className = 'card';
+  b.innerHTML = `<div class="cover" style="background-image:url(${g.cover})"><span class="play">▶</span></div>
+    <div class="body"><h2>${g.name}</h2><p>${g.desc}</p><div class="tags">${g.tags.map(([c, t]) => `<span class="tag ${c}">${t}</span>`).join('')}</div></div>`;
+  b.onclick = () => openGame(g, true); grid.appendChild(b);
+});
+const soon = document.createElement('div'); soon.className = 'card soon'; soon.textContent = '更多遊戲陸續加入 ✨'; grid.appendChild(soon);
+
+// ===== 開遊戲／回遊戲盒（手機返回鍵也能回來） =====
+const player = document.getElementById('player'), frame = document.getElementById('frame'), homeBtn = document.getElementById('homeBtn');
+let histStart = 0;
+function openGame(g, push) {
+  if (push) histStart = history.length;
+  frame.contentWindow.location.replace(new URL(g.url, location.href).href); player.classList.add('show'); homeBtn.style.cssText = POS[g.home] || POS.bl;
+  document.title = g.name.replace(/\s.*$/, '') + '・數學遊戲盒';
+  if (push) history.pushState({ game: g.id }, '', '#' + g.id);
+}
+function closeGame() { player.classList.remove('show'); frame.contentWindow.location.replace('about:blank'); document.title = 'SUNNY魔法數學・遊戲盒'; }
+// 遊戲裡換頁也會記進返回紀錄 → 一次退回到開遊戲之前
+homeBtn.onclick = () => { const n = history.length - histStart; closeGame(); if (histStart && n > 0) history.go(-n); else history.replaceState(null, '', location.pathname); histStart = 0; };
+window.addEventListener('popstate', () => { const g = GAMES.find(x => '#' + x.id === location.hash); g ? openGame(g, false) : closeGame(); });
+{ const g = GAMES.find(x => '#' + x.id === location.hash); if (g) { history.replaceState({ game: g.id }, '', '#' + g.id); openGame(g, false); } }
+
+// ===== 加到主畫面 =====
+let deferred = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+const installBtn = document.getElementById('installBtn');
+if (standalone) installBtn.style.display = 'none';
+installBtn.onclick = async () => {
+  if (deferred) { deferred.prompt(); await deferred.userChoice; deferred = null; return; }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  document.getElementById('howText').innerHTML = ios
+    ? '<h3>📲 加到主畫面（iPhone／iPad）</h3>1. 用 <b>Safari</b> 打開這一頁<br>2. 點下面的 <b>分享鈕</b>（方框加向上箭頭）<br>3. 往下滑，點 <b>「加入主畫面」</b><br>4. 主畫面就會出現浩克的遊戲盒圖示 🎉<br><button onclick="this.closest(\'.ov\').classList.remove(\'show\')">知道了</button>'
+    : '<h3>📲 加到主畫面</h3>用 <b>Chrome</b> 打開這一頁，點右上角 <b>⋮</b> → <b>「加到主畫面」</b>或<b>「安裝應用程式」</b>。<br>電腦版 Chrome：網址列右邊的 <b>安裝圖示</b>。<br><button onclick="this.closest(\'.ov\').classList.remove(\'show\')">知道了</button>';
+  document.getElementById('howOv').classList.add('show');
+};
+document.getElementById('howOv').onclick = e => { if (e.target.id === 'howOv') e.target.classList.remove('show'); };
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

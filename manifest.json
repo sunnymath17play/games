@@ -1,0 +1,16 @@
+{
+  "name": "SUNNY魔法數學・數學遊戲盒",
+  "short_name": "數學遊戲盒",
+  "description": "SUNNY 魔法數學的數學遊戲：終極密碼、角度王者之路、九九乘法快閃",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f7f4ea",
+  "theme_color": "#f0b93a",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
