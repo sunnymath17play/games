@@ -9,67 +9,75 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../shared/common.css" />
 <style>
-.main{display:flex;flex-direction:column;align-items:center;padding:0 18px 18px;height:calc(100% - 72px)}
-.score{display:flex;gap:18px;font-size:22px;font-weight:900;margin:4px 0 10px}
-.score span{background:#fff;border-radius:999px;padding:6px 16px}
-.score b{font-family:Fredoka;font-size:28px}
-.table{display:flex;align-items:center;justify-content:center;gap:5vw;flex:1;width:100%}
-.count{display:flex;flex-direction:column;align-items:center}
-.count .lab{font-size:26px;font-weight:900;color:var(--muted)}
-.count .ball{width:min(30vh,22vw);height:min(30vh,22vw);border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-weight:700;font-size:min(18vh,13vw);box-shadow:0 10px 0 #163627}
+.main{display:flex;align-items:center;justify-content:center}
+.stage{width:min(1400px,100%);padding:32px 40px;display:flex;flex-direction:column;align-items:center}
+.table{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:center;width:100%}
+.count{display:flex;flex-direction:column;align-items:center;gap:12px}
+.count .lab{font-size:16px;font-weight:900;color:var(--muted);letter-spacing:3px}
+.count .ball{width:min(34vh,380px);height:min(34vh,380px);border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-weight:700;font-size:min(20vh,230px)}
 .count .ball.beat{animation:beat .3s}
-@keyframes beat{40%{transform:scale(1.12)}}
-.pcard{width:min(56vh,44vw);height:min(40vh,30vw);border-radius:30px;background:#fff;border:6px solid var(--gold);box-shadow:0 10px 0 #e3cf9a;display:flex;align-items:center;justify-content:center;position:relative}
-.pcard .expr{font-size:clamp(46px,6.4vw,110px);color:var(--green)}
+@keyframes beat{40%{transform:scale(1.1)}}
+.pcol{display:flex;flex-direction:column;gap:12px}
+.pcol .lab{font-size:16px;font-weight:900;color:var(--muted);letter-spacing:3px;text-align:center}
+.pcard{height:min(34vh,380px);border-radius:20px;background:#fbf9f3;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative}
+.pcard .expr{font-size:clamp(60px,min(7vw,15vh),180px);color:var(--green)}
 .pcard.flip{animation:flip .35s}
 @keyframes flip{0%{transform:rotateY(90deg)}100%{transform:rotateY(0)}}
-.pcard .res{position:absolute;bottom:10px;font-family:Fredoka;font-size:clamp(28px,3.4vw,50px);font-weight:700;color:var(--red)}
-.ctrl{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:14px}
-.slap{background:var(--red);color:#fff;font-size:34px;font-weight:900;padding:16px 50px;border-radius:999px;box-shadow:0 6px 0 #a3272b}
-.slap:active{transform:translateY(3px);box-shadow:0 2px 0 #a3272b}
-.verdict{font-size:clamp(28px,3.6vw,50px);font-weight:900;min-height:1.4em;text-align:center;margin-top:8px}
+.pcard .res{position:absolute;right:24px;bottom:14px;font-family:Fredoka;font-size:clamp(28px,3vw,44px);font-weight:700;color:var(--red)}
+.verdict{font-size:clamp(26px,3vw,40px);font-weight:900;height:1.5em;text-align:center;margin:18px 0 8px}
 .verdict.ok{color:var(--green2)}.verdict.no{color:var(--red)}
+.ctrl{display:flex;gap:16px;justify-content:center}
+.slap{height:68px;padding:0 54px;border-radius:18px;background:var(--red);color:#fff;font-size:30px;font-weight:900;box-shadow:0 4px 0 #a3272b}
+.slap:active{transform:translateY(3px);box-shadow:0 1px 0 #a3272b}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);width:100%;margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
+.stats div{text-align:center}
+.stats b{display:block;font-family:Fredoka;font-size:40px;color:var(--ink);line-height:1.1}
+.stats div>span{font-size:15px;font-weight:900;color:var(--muted);letter-spacing:2px}
+.stats div+div{border-left:1px solid var(--line)}
 .toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:18px;padding:10px 22px;font-size:24px;font-weight:900;display:none;z-index:30}
 .flash{animation:flashBg .5s}
 @keyframes flashBg{30%{background:#ffd9d9}}
-.howto{font-size:18px;color:var(--muted);font-weight:700;text-align:center;margin-top:6px}
 @media (max-width:900px), (orientation:portrait){
-  .score{gap:6px;font-size:15px}.score span{padding:4px 10px;white-space:nowrap}.score b{font-size:20px}
-  .table{flex-direction:column;gap:20px}.count .ball{width:34vw;height:34vw;font-size:20vw}.pcard{width:90vw;height:46vw}
+  .stage{padding:18px}.table{grid-template-columns:1fr;gap:16px;justify-items:center}.pcol{width:100%}.count .ball{width:34vw;height:34vw;font-size:20vw}.pcard{height:42vw}
+  .slap{padding:0 30px;font-size:24px}.stats b{font-size:28px}
 }
 </style>
 </head>
 <body>
 <div class="top">
   <img class="logo" src="../shared/img/logo.png" alt="SUNNY魔法數學" />
-  <h1>心臟病 💓</h1>
-  <span class="tag" id="tag"></span>
+  <div class="ttl"><h1>心臟病</h1><span class="tag" id="tag"></span></div>
   <span class="sp"></span>
-  <button class="tbtn" id="helpBtn">❓ 玩法</button>
+  <button class="tbtn" id="helpBtn">玩法說明</button>
   <button class="tbtn" id="soundBtn">🔊</button>
-  <button class="tbtn fsBtn" id="fsBtn">⛶ 全螢幕</button>
-  <button class="tbtn" id="setBtn">⚙️ 設定</button>
+  <button class="tbtn fsBtn" id="fsBtn">全螢幕</button>
+  <button class="tbtn" id="setBtn">設定</button>
 </div>
 
-<div class="main" id="main">
-  <div class="score"><span>✋ 拍對 <b id="sOk">0</b> / <b id="sGoal">5</b></span><span>😱 錯過 <b id="sMiss">0</b></span><span>🙅 拍錯 <b id="sBad">0</b></span></div>
-  <div class="table">
-    <div class="count"><div class="lab">大家一起喊</div><div class="ball" id="ball">–</div></div>
-    <div class="pcard" id="pcard"><span class="expr" style="color:#c9c2ad">準備</span><div class="res" id="res"></div></div>
+<div class="wrap main" id="main">
+  <div class="card stage">
+    <div class="table">
+      <div class="count"><div class="lab">大家一起喊</div><div class="ball" id="ball">–</div></div>
+      <div class="pcol"><div class="lab">算式卡</div><div class="pcard" id="pcard"><span class="expr" style="color:#c9c2ad">準備</span><div class="res" id="res"></div></div></div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="ctrl">
+      <button class="big-btn" id="playBtn">▶ 開始</button>
+      <button class="slap" id="slapBtn">✋ 拍！</button>
+    </div>
+    <div class="stats">
+      <div><b><span id="sOk">0</span> / <span id="sGoal">5</span></b><span>拍對</span></div>
+      <div><b id="sMiss">0</b><span>錯過</span></div>
+      <div><b id="sBad">0</b><span>拍錯</span></div>
+    </div>
   </div>
-  <div class="verdict" id="verdict"></div>
-  <div class="ctrl">
-    <button class="big-btn" id="playBtn">▶ 開始</button>
-    <button class="slap" id="slapBtn">✋ 拍！</button>
-  </div>
-  <div class="howto">喊的數字＝卡片的答案就拍桌！有人拍了，老師按「✋ 拍！」（或空白鍵）</div>
 </div>
 <div class="toast" id="toast"></div>
 
 <!-- 設定 -->
 <div class="ov dim" id="setOv">
   <div class="panel">
-    <h2>💓 心臟病・設定</h2>
+    <h2>心臟病・設定</h2>
     <div class="row"><span class="lab">算式</span><div class="seg" id="sOps"></div></div>
     <div class="desc">都是兩個數字的計算，可以複選</div>
     <div class="row"><span class="lab">數到幾</span><div class="seg" id="sMax"></div></div>

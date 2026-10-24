@@ -9,24 +9,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../shared/common.css" />
 <style>
-.main{display:grid;grid-template-columns:1.7fr 1fr;gap:20px;padding:0 18px 18px;height:calc(100% - 72px)}
-.stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative}
-.qno{font-size:26px;font-weight:900;color:var(--green2)}
-.qno b{font-family:Fredoka;font-size:40px;color:var(--red)}
-.qcard{margin:16px 0 10px;min-height:42%;width:92%;display:flex;align-items:center;justify-content:center;border-radius:30px;background:#fff;border:5px solid var(--gold);box-shadow:0 8px 0 #e3cf9a}
-.qcard .expr{font-size:clamp(56px,8vw,130px);color:var(--green)}
+.main{display:grid;grid-template-columns:1fr 380px;gap:24px}
+.stage{display:flex;flex-direction:column;padding:28px 32px}
+.stage .head{display:flex;align-items:center;justify-content:space-between}
+.qno{font-size:30px;font-weight:900;color:var(--green)}
+.qno b{font-family:Fredoka;font-size:44px;color:var(--red);margin:0 4px}
+.goal{background:#fff6dc;color:#8a5d00;border-radius:12px;padding:8px 16px;font-weight:900;font-size:17px}
+.qcard{flex:1;margin:20px 0;display:flex;align-items:center;justify-content:center;border-radius:20px;background:#fbf9f3;border:2px solid var(--line)}
+.qcard .expr{font-size:clamp(64px,min(10vw,20vh),220px);color:var(--green)}
 .qcard.flip{animation:flip .5s}
 @keyframes flip{0%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
-.hint{font-size:24px;color:var(--muted);font-weight:700;margin-bottom:18px;text-align:center}
-.btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
-.goal{position:absolute;top:16px;right:22px;background:#fff1c9;color:#8a5d00;border-radius:999px;padding:6px 14px;font-weight:900;font-size:18px}
-.side{padding:18px;display:flex;flex-direction:column;min-height:0}
-.side h3{margin:0 0 10px;color:var(--green);font-size:22px}
-.side h3 small{color:var(--muted);font-size:15px;font-weight:700}
-.hist{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;min-height:0}
-.hi{display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:8px 14px;font-size:30px;animation:popIn .4s}
-.hi .fr{font-size:.65em}
-.hi .n{background:var(--green);color:#fff;border-radius:999px;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-size:18px}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hint{font-size:20px;color:var(--muted);font-weight:700}
+.btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.side{padding:24px 0 12px;display:flex;flex-direction:column;min-height:0}
+.side .shead{display:flex;align-items:baseline;justify-content:space-between;padding:0 24px 12px;border-bottom:1px solid var(--line)}
+.side .shead span{font-size:14px;color:var(--muted);font-weight:700}
+.hist{flex:1;overflow:auto;min-height:0}
+.hi{display:flex;align-items:center;gap:16px;padding:12px 24px;border-bottom:1px solid #f1ece0;font-size:30px;animation:popIn .4s}
+.hi .n{color:var(--muted);font-family:Fredoka;font-size:18px;width:28px;text-align:right}
 .hi .ans{margin-left:auto;font-family:Fredoka;font-weight:700;color:var(--red);font-size:28px}
 /* 開場：畫格子說明 */
 .intro{flex-direction:column;background:var(--cream);text-align:center;padding:20px}
@@ -45,35 +46,35 @@
 .nums span.on{background:var(--gold);color:#4a3200}
 .check .btns{margin-top:10px}
 @media (max-width:900px), (orientation:portrait){
-  .main{grid-template-columns:1fr;height:auto}.qcard{min-height:180px}.side{max-height:50vh}.goal{position:static;margin-bottom:6px}
+  .main{grid-template-columns:1fr}.stage{padding:18px}.qcard{min-height:180px}.side{max-height:50vh}.foot{justify-content:center}.hint{text-align:center}
 }
 </style>
 </head>
 <body>
 <div class="top">
   <img class="logo" src="../shared/img/logo.png" alt="SUNNY魔法數學" />
-  <h1>數字賓果 🎯</h1>
-  <span class="tag" id="tag"></span>
+  <div class="ttl"><h1>數字賓果</h1><span class="tag" id="tag"></span></div>
   <span class="sp"></span>
-  <button class="tbtn" id="helpBtn">❓ 玩法</button>
+  <button class="tbtn" id="helpBtn">玩法說明</button>
   <button class="tbtn" id="soundBtn">🔊</button>
-  <button class="tbtn fsBtn" id="fsBtn">⛶ 全螢幕</button>
-  <button class="tbtn" id="setBtn">⚙️ 設定</button>
+  <button class="tbtn fsBtn" id="fsBtn">全螢幕</button>
+  <button class="tbtn" id="setBtn">設定</button>
 </div>
 
-<div class="main">
+<div class="wrap main">
   <div class="card stage">
-    <div class="goal" id="goal"></div>
-    <div class="qno" id="qno"></div>
+    <div class="head"><div class="qno" id="qno"></div><div class="goal" id="goal"></div></div>
     <div class="qcard" id="qcard"><span class="expr" style="color:#c9c2ad">？</span></div>
-    <div class="hint" id="hint">算出答案，在自己的賓果卡上圈起來！</div>
-    <div class="btns">
-      <button class="big-btn" id="nextBtn">下一題 ▶</button>
-      <button class="big-btn gold" id="bingoBtn">🙋 有人賓果！</button>
+    <div class="foot">
+      <div class="hint" id="hint">算出答案，在自己的賓果卡上圈起來</div>
+      <div class="btns">
+        <button class="big-btn" id="nextBtn">下一題 ▶</button>
+        <button class="big-btn gold" id="bingoBtn">有人賓果！</button>
+      </div>
     </div>
   </div>
   <div class="card side">
-    <h3>出過的題目 <small>（算錯的可以再算一次）</small></h3>
+    <div class="shead"><span class="ptitle">出過的題目</span><span>算錯可以再算一次</span></div>
     <div class="hist" id="hist"></div>
   </div>
 </div>
@@ -90,12 +91,12 @@
 <!-- 檢查賓果 -->
 <div class="ov dim check" id="checkOv">
   <div class="panel">
-    <h2>🙋 有人喊賓果！來檢查</h2>
+    <h2>有人喊賓果！來檢查</h2>
     <div style="font-size:19px;font-weight:700">請他唸出連成線的數字，黃色的是<b>已經出過</b>的答案：</div>
     <div class="nums" id="nums"></div>
     <div class="btns">
-      <button class="big-btn" id="okBtn">🎉 賓果成功！</button>
-      <button class="big-btn white" id="noBtn">❌ 不對喔，繼續</button>
+      <button class="big-btn" id="okBtn">賓果成功！</button>
+      <button class="big-btn white" id="noBtn">不對喔，繼續</button>
     </div>
   </div>
 </div>
@@ -103,7 +104,7 @@
 <!-- 設定 -->
 <div class="ov dim" id="setOv">
   <div class="panel">
-    <h2>🎯 數字賓果・設定</h2>
+    <h2>數字賓果・設定</h2>
     <div class="row"><span class="lab">算式</span><div class="seg" id="sOps"></div></div>
     <div class="desc">都是兩個數字的計算，可以複選</div>
     <div class="row"><span class="lab">賓果卡</span><div class="seg" id="sSize"></div></div>
