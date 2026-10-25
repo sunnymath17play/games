@@ -9,27 +9,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="../shared/common.css" />
 <style>
-.main{display:flex;align-items:center;justify-content:center}
-.stage{width:min(1400px,100%);padding:32px 40px;display:flex;flex-direction:column;align-items:center}
+.main{display:flex;align-items:safe center;justify-content:center;overflow:auto}
+.stage{width:min(1400px,100%);padding:24px 36px 18px;display:flex;flex-direction:column;align-items:center}
 .table{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:center;width:100%}
 .count{display:flex;flex-direction:column;align-items:center;gap:12px}
 .count .lab{font-size:16px;font-weight:900;color:var(--muted);letter-spacing:3px}
-.count .ball{width:min(34vh,380px);height:min(34vh,380px);border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-weight:700;font-size:min(20vh,230px)}
+.count .ball{width:min(29vh,360px);height:min(29vh,360px);border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-weight:700;font-size:min(17vh,220px)}
 .count .ball.beat{animation:beat .3s}
 @keyframes beat{40%{transform:scale(1.1)}}
 .pcol{display:flex;flex-direction:column;gap:12px}
 .pcol .lab{font-size:16px;font-weight:900;color:var(--muted);letter-spacing:3px;text-align:center}
-.pcard{height:min(34vh,380px);border-radius:20px;background:#fbf9f3;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative}
+.pcard{height:min(29vh,360px);border-radius:20px;background:#fbf9f3;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative}
 .pcard .expr{font-size:clamp(60px,min(7vw,15vh),180px);color:var(--green)}
 .pcard.flip{animation:flip .35s}
 @keyframes flip{0%{transform:rotateY(90deg)}100%{transform:rotateY(0)}}
 .pcard .res{position:absolute;right:24px;bottom:14px;font-family:Fredoka;font-size:clamp(28px,3vw,44px);font-weight:700;color:var(--red)}
-.verdict{font-size:clamp(26px,3vw,40px);font-weight:900;height:1.5em;text-align:center;margin:18px 0 8px}
+.verdict{font-size:clamp(24px,2.6vw,38px);font-weight:900;height:1.4em;text-align:center;margin:10px 0 8px}
 .verdict.ok{color:var(--green2)}.verdict.no{color:var(--red)}
-.ctrl{display:flex;gap:16px;justify-content:center}
-.slap{height:68px;padding:0 54px;border-radius:18px;background:var(--red);color:#fff;font-size:30px;font-weight:900;box-shadow:0 4px 0 #a3272b}
-.slap:active{transform:translateY(3px);box-shadow:0 1px 0 #a3272b}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);width:100%;margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
+.ctrl{display:grid;grid-template-columns:auto 1fr;gap:20px;width:100%;align-items:stretch}
+.ctrl .big-btn{height:auto;min-height:96px;padding:0 34px}
+.slap{position:relative;height:min(23vh,240px);border-radius:28px;background:#fff6f2;border:3px dashed #f3b3b5;color:var(--red);font-size:clamp(40px,5vw,72px);font-weight:900;letter-spacing:6px;display:flex;align-items:center;justify-content:center;gap:28px;touch-action:manipulation;user-select:none;-webkit-user-select:none;transition:background .1s}
+.slap img{height:92%;pointer-events:none;transition:transform .08s}
+.slap .emo{font-size:1.4em}
+.slap.hit{background:#ffe1dc}.slap.hit img{transform:translateY(8px) scale(.94)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);width:100%;margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
 .stats div{text-align:center}
 .stats b{display:block;font-family:Fredoka;font-size:40px;color:var(--ink);line-height:1.1}
 .stats div>span{font-size:15px;font-weight:900;color:var(--muted);letter-spacing:2px}
@@ -54,7 +57,7 @@
 @keyframes flashBg{30%{background:#ffd9d9}}
 @media (max-width:900px), (orientation:portrait){
   .stage{padding:18px}.table{grid-template-columns:1fr;gap:16px;justify-items:center}.pcol{width:100%}.count .ball{width:34vw;height:34vw;font-size:20vw}.pcard{height:42vw}
-  .slap{padding:0 30px;font-size:24px}.stats b{font-size:28px}
+  .ctrl{grid-template-columns:1fr}.ctrl .big-btn{min-height:64px}.slap{height:26vh}.stats b{font-size:28px}
 }
 </style>
 </head>
@@ -78,7 +81,7 @@
     <div class="verdict" id="verdict"></div>
     <div class="ctrl">
       <button class="big-btn" id="playBtn">▶ 開始</button>
-      <button class="slap" id="slapBtn">✋ 拍！</button>
+      <button class="slap" id="slapBtn"><img src="../shared/img/buzzer.png" alt="" onerror="this.outerHTML='<span class=emo>🔴</span>'">按！</button>
     </div>
     <div class="stats">
       <div><b><span id="sOk">0</span> / <span id="sGoal">5</span></b><span>拍對</span></div>
@@ -100,7 +103,7 @@
     <div class="row"><span class="lab">速度</span><div class="seg" id="sSpeed"></div></div>
     <div class="row"><span class="lab">拍對幾次過關</span><div class="seg" id="sGoalSel"></div></div>
     <div class="row"><span class="lab">電腦一起喊</span><div class="seg" id="sVoice"></div></div>
-    <div class="desc">玩法：全班跟著畫面一起喊 1、2、3…，每喊一個數字就翻一張算式卡。<br>卡片算出來剛好等於喊的數字，就要趕快拍桌！最慢拍的、或是不該拍卻拍的人就「心臟病發作」😝</div>
+    <div class="desc">玩法：全班跟著畫面一起喊 1、2、3…，每喊一個數字就翻一張算式卡。<br>卡片算出來剛好等於喊的數字，大家就要趕快拍手！掌控平板的人看到有人拍手就按大按鈕，電腦判斷對不對。最慢拍的、或是不該拍卻拍的人就「心臟病發作」😝</div>
     <button class="start" id="startBtn">開始！</button>
   </div>
 </div>
@@ -108,11 +111,12 @@
 <script src="../shared/common.js"></script>
 <script>
 const HELP = ['💓 心臟病怎麼玩', '眼睛要快、手要更快！', [
-  ['📣', '畫面會跳出數字 1、2、3…<br>全班<b>一起大聲喊</b>出來'],
-  ['🃏', '每喊一個數字<br>就會翻出一張<b>算式卡</b>'],
-  ['✋', '卡片的答案<b>剛好等於</b>喊的數字<br>就馬上<b>拍桌子！</b>'],
-  ['😝', '不一樣就<b>不能拍</b>！<br>拍錯或最慢拍的人<br>就「心臟病發作」'],
-], '👀 老師看到有人拍，就按畫面上的「✋ 拍！」'];
+  ['📣', '畫面跳出數字<br>全班<b>一起大聲喊</b>'],
+  ['🃏', '每喊一個數字<br>就翻出一張<br><b>算式卡</b>'],
+  ['👏', '卡片的答案<br><b>等於</b>喊的數字<br>大家就<b>拍手！</b>'],
+  ['<img src="../shared/img/buzzer.png" style="height:1.1em" alt="">', '掌控平板的人<br>看到有人拍手<br>就按<b>大按鈕</b>'],
+  ['😝', '不一樣<b>不能拍</b><br>拍錯或最慢的人<br>「心臟病發作」'],
+], '電腦會判斷拍得對不對，慢半拍也算喔！'];
 const KEY = 'heart_settings';
 let S = loadSettings(KEY, { ops: ALL_OPS, max: 10, speed: 3000, goal: 5, voice: 1 }); S.ops = cleanOps(S.ops);
 let G = {}, beatT = null;
@@ -129,12 +133,16 @@ function newGame() {
 function drawScore() { $('sOk').textContent = G.ok; $('sMiss').textContent = G.miss; $('sBad').textContent = G.bad; }
 
 // 每一拍：數字 +1、翻一張新卡
+const GRACE = 700; // 小朋友常常慢半拍：換下一張後 0.7 秒內拍，還是算拍上一張
 function beat() {
-  // 上一張該拍沒拍 → 錯過
+  // 上一張該拍還沒拍 → 先等 0.7 秒，真的沒拍才算錯過
   if (G.card && G.card.answer === G.count && !G.judged) {
-    G.miss++; drawScore(); const c = G.card, n = G.count; G.judged = true; stop(); BUZZ();
-    react('miss', '😱', '錯過了！要拍沒拍', `${exprText(c.expr)} = <span class="num">${n}</span>，剛剛要拍桌！`, 2000).then(() => { if (!G.running) { G.card = null; play(); } });
-    return;
+    const p = { card: G.card, count: G.count }; G.pending = p;
+    setTimeout(() => {
+      if (G.pending !== p) return; G.pending = null;
+      G.miss++; drawScore(); stop(); BUZZ();
+      react('miss', '😱', '錯過了！要拍沒拍', `${exprText(p.card.expr)} = <span class="num">${p.count}</span>，剛剛要拍手！`, 2000).then(() => { if (!G.running) { G.card = null; play(); } });
+    }, GRACE);
   }
   G.count = G.count % S.max + 1; G.judged = false;
   // 大約 1/3 機率出「剛好相等」的卡；太久沒出就一定出；其他的故意出差 1、2 的陷阱
@@ -159,6 +167,15 @@ $('playBtn').onclick = () => { if (G.running) stop(); else play(); };
 
 // 有人拍了
 async function slap() {
+  const pad = $('slapBtn'); pad.classList.add('hit'); setTimeout(() => pad.classList.remove('hit'), 150);
+  if (G.pending) { // 慢半拍拍到上一張
+    const p = G.pending; G.pending = null; const wasRunning = G.running; stop(); G.judged = true; SFX.slap(); SFX.ding();
+    G.ok++; drawScore();
+    await react('good', '👏', '拍對了！', `${exprText(p.card.expr)} = <span class="num">${p.count}</span>`, 1500);
+    if (G.ok >= S.goal) { await sleep(600); await celebrate('💓 全班過關！', `拍對 <span class="num">${G.ok}</span> 次・錯過 ${G.miss} 次・拍錯 ${G.bad} 次`, '再玩一次 ▶'); newGame(); return; }
+    if (wasRunning && !G.running) { G.card = null; play(); }
+    return;
+  }
   if (!G.card) { toast(G.count ? '已經暫停了，按「▶ 繼續」再玩' : '先按「▶ 開始」喔！'); SFX.bad(); return; }
   if (G.judged) { toast('這張已經判斷過了，等下一張！'); return; }
   const wasRunning = G.running; stop(); G.judged = true; SFX.slap();
@@ -169,12 +186,13 @@ async function slap() {
   if (hit) { G.ok++; v.className = 'verdict ok'; v.textContent = `✅ 拍對了！${G.card.answer} = ${G.count}`; SFX.ding(); }
   else { G.bad++; v.className = 'verdict no'; v.textContent = `🙅 不能拍！答案是 ${G.card.answer}，不是 ${G.count}`; BUZZ(); }
   drawScore();
-  if (hit) await react('good', '✋', '拍對了！', `${exprText(G.card.expr)} = <span class="num">${G.count}</span>`, 1500);
+  if (hit) await react('good', '👏', '拍對了！', `${exprText(G.card.expr)} = <span class="num">${G.count}</span>`, 1500);
   else await react('bad', '💔', '心臟病發作！', `${exprText(G.card.expr)} = <span class="num">${G.card.answer}</span>，不是 <span class="num">${G.count}</span>，不能拍！`, 2200);
   if (G.ok >= S.goal) { await sleep(1200); await celebrate('💓 全班過關！', `拍對 <span class="num">${G.ok}</span> 次・錯過 ${G.miss} 次・拍錯 ${G.bad} 次`, '再玩一次 ▶'); newGame(); return; }
   if (wasRunning) { await sleep(300); if (!G.running) { G.card = null; play(); } }
 }
-$('slapBtn').onclick = slap;
+// 手指一碰到就算（不用等放開）
+$('slapBtn').addEventListener('pointerdown', e => { e.preventDefault(); slap(); });
 document.addEventListener('keydown', e => {
   if (document.querySelector('.ov.show')) return;
   if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); slap(); }
