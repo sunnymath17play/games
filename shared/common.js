@@ -124,3 +124,30 @@ function showHelp(title, sub, steps, note, btn = '知道了，開始玩！') {
   ov.classList.add('show');
   return new Promise(res => { $('helpGo').onclick = () => { ov.classList.remove('show'); res(); }; });
 }
+
+// ================= 數字鍵盤 =================
+// keypad(鍵盤容器, 顯示框, {max: 最多幾位, onOk(數字), okText}) → 回傳 {clear, value}
+// 實體鍵盤也能打（數字、Backspace、Enter）
+function keypad(box, screen, opt) {
+  let v = '';
+  const ph = opt.placeholder || '輸入答案';
+  const show = () => { screen.textContent = v || ph; screen.classList.toggle('ph', !v); };
+  const press = k => {
+    if (k === 'C') v = ''; else if (k === 'B') v = v.slice(0, -1);
+    else if (k === 'OK') { if (v) opt.onOk(parseInt(v, 10)); return; }
+    else if (v.length < (opt.max || 3)) v = (v === '0' ? '' : v) + k;
+    SFX.key(); show();
+  };
+  box.className = 'kp'; box.innerHTML = '';
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'B'].forEach(k => {
+    const b = document.createElement('button'); b.textContent = k === 'C' ? '清除' : k === 'B' ? '⌫' : k;
+    if (k === 'C' || k === 'B') b.className = 'fn'; b.onclick = () => press(k); box.appendChild(b);
+  });
+  const ok = document.createElement('button'); ok.className = 'ok'; ok.textContent = opt.okText || '確定'; ok.style.gridColumn = '1 / 4'; ok.onclick = () => press('OK'); box.appendChild(ok);
+  const onKey = e => { if (!box.isConnected || !box.offsetParent) return;
+    if (/^[0-9]$/.test(e.key)) press(e.key); else if (e.key === 'Backspace') press('B'); else if (e.key === 'Escape') press('C'); else if (e.key === 'Enter') { e.preventDefault(); press('OK'); } };
+  if (box._onKey) document.removeEventListener('keydown', box._onKey);
+  box._onKey = onKey; document.addEventListener('keydown', onKey);
+  show();
+  return { clear() { v = ''; show(); }, shake() { screen.classList.remove('err'); void screen.offsetWidth; screen.classList.add('err'); } };
+}

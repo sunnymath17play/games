@@ -87,3 +87,14 @@ button{font-family:inherit;cursor:pointer;border:none}
 .hstep .txt b{color:var(--red)}
 .help .note{margin-top:16px;font-size:clamp(18px,2vw,24px);font-weight:700;color:var(--green2);text-align:center}
 .help .start{margin-top:18px}
+
+/* 數字鍵盤 */
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(420px,90vw)}
+.kp button{height:min(9vh,72px);border-radius:16px;background:#fff;border:2px solid var(--line);font-family:Fredoka;font-size:min(4.6vh,36px);font-weight:600;color:var(--ink)}
+.kp button.fn{font-family:"Noto Sans TC";font-size:min(3vh,22px);font-weight:700;color:var(--green2)}
+.kp button.ok{background:var(--green);border-color:var(--green);color:#fff;font-family:"Noto Sans TC";font-size:min(3.2vh,24px);font-weight:900}
+.kp button:active{transform:scale(.94);background:#f4f1e8}
+.kp button.ok:active{background:#163627}
+.kscreen{width:min(420px,90vw);height:min(10vh,84px);border-radius:16px;border:3px solid var(--green);background:#fff;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-size:min(6vh,50px);font-weight:700;color:var(--green)}
+.kscreen.ph{color:#c9c2ad;font-size:min(3.4vh,26px);font-family:"Noto Sans TC"}
+.kscreen.err{animation:shake .4s;border-color:var(--red)}

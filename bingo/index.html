@@ -40,11 +40,21 @@
 .sample span.c::after{content:'';position:absolute;inset:6px;border:4px solid var(--red);border-radius:50%}
 /* 檢查賓果 */
 .check{flex-direction:column}
-.check .panel{max-width:900px}
-.nums{display:grid;gap:8px;margin:12px 0}
-.nums span{aspect-ratio:1;border-radius:12px;background:#ece9dc;color:#b3ae9c;display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-weight:600;font-size:clamp(18px,2.4vw,30px)}
-.nums span.on{background:var(--gold);color:#4a3200}
-.check .btns{margin-top:10px}
+.check .panel{max-width:1000px}
+.ckgrid{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:start;margin-top:10px}
+.ckpad{display:flex;flex-direction:column;gap:10px}
+.cklist{display:flex;flex-direction:column;gap:14px}
+.cklist .lab{font-size:16px;font-weight:900;color:var(--muted);letter-spacing:2px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;min-height:72px;align-content:flex-start}
+.chip{width:72px;height:72px;border-radius:16px;background:#f4f1e8;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:Fredoka;font-size:32px;font-weight:700;position:relative;cursor:pointer}
+.chip.ok{background:#e6f4ea;border-color:#3f9d5c;color:#2b7a45}
+.chip.no{background:#fde8e8;border-color:var(--red);color:var(--red)}
+.chip.ok::after{content:'✓';position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:#3f9d5c;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center}
+.chip.no::after{content:'✗';position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center}
+.ckres{font-size:24px;font-weight:900;min-height:36px}
+.ckres.ok{color:#2b7a45}.ckres.no{color:var(--red)}
+.check .btns{display:flex;gap:12px;flex-wrap:wrap}
+@media (max-width:900px), (orientation:portrait){.ckgrid{grid-template-columns:1fr;justify-items:center}}
 @media (max-width:900px), (orientation:portrait){
   .main{grid-template-columns:1fr}.stage{padding:18px}.qcard{min-height:180px}.side{max-height:50vh}.foot{justify-content:center}.hint{text-align:center}
 }
@@ -92,11 +102,18 @@
 <div class="ov dim check" id="checkOv">
   <div class="panel">
     <h2>有人喊賓果！來檢查</h2>
-    <div style="font-size:19px;font-weight:700">請他唸出連成線的數字，黃色的是<b>已經出過</b>的答案：</div>
-    <div class="nums" id="nums"></div>
-    <div class="btns">
-      <button class="big-btn" id="okBtn">賓果成功！</button>
-      <button class="big-btn white" id="noBtn">不對喔，繼續</button>
+    <div style="font-size:19px;font-weight:700">請他唸出連成線的數字，一個一個輸入，電腦會檢查是不是都出過</div>
+    <div class="ckgrid">
+      <div class="ckpad"><div class="kscreen" id="ckScreen"></div><div id="ckPad"></div></div>
+      <div class="cklist">
+        <div class="lab" id="ckLab"></div>
+        <div class="chips" id="chips"></div>
+        <div class="ckres" id="ckRes"></div>
+        <div class="btns">
+          <button class="big-btn" id="checkBtn">檢查</button>
+          <button class="big-btn white" id="noBtn">取消，繼續玩</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -120,6 +137,7 @@ const HELP = ['🎯 數字賓果怎麼玩', '每個人都要準備一張紙和�
   ['🔢', '把 <b>1～25</b> 隨便填進格子裡<br>每個數字只填一次'],
   ['🧮', '老師出一題，大家算出答案<br>在自己的格子上<b>圈起來</b>'],
   ['🎉', '圈起來的數字連成一條線<br>（橫的、直的、斜的都可以）<br>就大喊「<b>賓果！</b>」'],
+  ['🔢', '老師用<b>數字鍵盤</b><br>輸入他連成線的數字<br>電腦檢查對不對'],
 ], '⚠️ 算錯就會圈錯格，要認真算喔！'];
 const KEY = 'bingo_settings';
 let S = loadSettings(KEY, { ops: ALL_OPS, size: 5, lines: 1 }); S.ops = cleanOps(S.ops);
@@ -165,14 +183,32 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); nextQ(); }
 });
 
+// 有人喊賓果：輸入他連成線的數字，電腦檢查是不是都出過
+let ck = [], pad = null;
+function drawChips(res) {
+  $('ckLab').textContent = `輸入的數字（${ck.length} 個，點數字可以刪掉）`;
+  $('chips').innerHTML = ck.map((n, i) => `<div class="chip ${res ? (res[i] ? 'ok' : 'no') : ''}" data-i="${i}" title="點一下刪掉">${n}</div>`).join('');
+  $('chips').querySelectorAll('.chip').forEach(c => c.onclick = () => { ck.splice(+c.dataset.i, 1); $('ckRes').textContent = ''; drawChips(); });
+  $('checkBtn').disabled = ck.length < S.size;
+}
 $('bingoBtn').onclick = () => {
-  const on = new Set(G.called.map(q => q.answer)), nums = $('nums');
-  nums.style.gridTemplateColumns = `repeat(${S.size === 4 ? 8 : 10},1fr)`;
-  nums.innerHTML = Array.from({ length: G.N }, (_, i) => `<span class="${on.has(i + 1) ? 'on' : ''}">${i + 1}</span>`).join('');
+  ck = []; $('ckRes').textContent = ''; $('ckRes').className = 'ckres';
+  pad = keypad($('ckPad'), $('ckScreen'), { max: 2, okText: '加入', placeholder: '輸入數字', onOk: v => {
+    if (v < 1 || v > G.N) { SFX.bad(); $('ckRes').className = 'ckres no'; $('ckRes').textContent = `要輸入 1～${G.N} 的數字`; return; }
+    if (ck.includes(v)) { SFX.bad(); $('ckRes').className = 'ckres no'; $('ckRes').textContent = `${v} 已經輸入過了`; return; }
+    ck.push(v); $('ckRes').textContent = ''; drawChips(); pad.clear();
+  } });
+  drawChips();
   $('checkOv').classList.add('show'); SFX.ding();
 };
-$('noBtn').onclick = () => { $('checkOv').classList.remove('show'); SFX.bad(); };
-$('okBtn').onclick = async () => {
+$('noBtn').onclick = () => { $('checkOv').classList.remove('show'); };
+$('checkBtn').onclick = async () => {
+  const called = new Set(G.called.map(q => q.answer));
+  const res = ck.map(n => called.has(n)); drawChips(res);
+  const bad = ck.filter((n, i) => !res[i]);
+  if (bad.length) { SFX.bad(); $('ckRes').className = 'ckres no'; $('ckRes').textContent = `✗ ${bad.join('、')} 還沒出過，不算賓果！`; return; }
+  SFX.ding(); $('ckRes').className = 'ckres ok'; $('ckRes').textContent = '✓ 全部都出過了，賓果成功！';
+  await sleep(1200);
   $('checkOv').classList.remove('show');
   // 賓果成功後，題目旁邊公布答案，大家一起對
   document.querySelectorAll('#hist .hi').forEach((h, i) => { const q = G.called[G.called.length - 1 - i];

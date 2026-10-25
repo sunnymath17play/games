@@ -36,10 +36,15 @@
 .msg{text-align:center;font-size:22px;font-weight:900;color:var(--green2);margin-top:16px;min-height:32px}
 /* 題目 */
 .qov{flex-direction:column;background:var(--cream);text-align:center}
-.qov .who{font-size:clamp(28px,3.4vw,46px);font-weight:900}
-.qov .qexpr{margin:20px 0;font-size:clamp(70px,min(11vw,22vh),220px);color:var(--green)}
-.qov .ans{font-family:Fredoka;font-size:clamp(50px,7vw,110px);font-weight:700;color:var(--red);min-height:1.2em}
-.qov .btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.qwrap{display:grid;grid-template-columns:1fr auto;gap:56px;align-items:center;width:min(1400px,94vw)}
+.qleft{display:flex;flex-direction:column;align-items:center;gap:18px}
+.qright{display:flex;flex-direction:column;align-items:center;gap:12px}
+.qov .who{font-size:clamp(26px,3vw,40px);font-weight:900}
+.qov .qexpr{font-size:clamp(64px,min(8vw,18vh),190px);color:var(--green)}
+.qov .ans{font-size:clamp(28px,3.4vw,52px);font-weight:900;min-height:1.4em}
+.qov .ans.ok{color:var(--green2)}.qov .ans.no{color:var(--red)}
+.qov .ans .num{font-size:1.25em}
+#qPad.locked{pointer-events:none;opacity:.5}
 .timer{font-family:Fredoka;font-size:40px;font-weight:700;color:var(--green2);display:flex;align-items:center;gap:10px}
 .timer .barw{width:min(500px,60vw);height:16px;background:#e6e9e1;border-radius:9px;overflow:hidden}
 .timer .bar{height:100%;background:var(--gold);transition:width 1s linear}
@@ -50,6 +55,7 @@
 @media (max-width:900px), (orientation:portrait){
   .main{grid-template-columns:1fr 1fr;gap:12px}.mid{grid-column:1/3;grid-row:2}.board{width:92vw}
   .team{height:auto;padding:12px;flex-direction:row;flex-wrap:wrap;gap:8px}.team .mark{font-size:40px}.team .name{font-size:20px}.team .score{font-size:34px}.team .scorelab{display:none}.team .turnTxt{width:100%;justify-content:center;margin:0;height:32px;font-size:15px}
+  .qov{overflow:auto;align-items:flex-start;padding:16px 0}.qwrap{grid-template-columns:1fr;gap:16px;justify-items:center}
 }
 </style>
 </head>
@@ -76,11 +82,15 @@
 
 <!-- 題目 -->
 <div class="ov qov" id="qOv">
-  <div class="who" id="qWho"></div>
-  <div class="qexpr" id="qExpr"></div>
-  <div class="timer" id="timer"><span id="tNum"></span><div class="barw"><div class="bar" id="tBar"></div></div></div>
-  <div class="ans" id="qAns"></div>
-  <div class="btns" id="qBtns"></div>
+  <div class="qwrap">
+    <div class="qleft">
+      <div class="who" id="qWho"></div>
+      <div class="qexpr" id="qExpr"></div>
+      <div class="timer" id="timer"><span id="tNum"></span><div class="barw"><div class="bar" id="tBar"></div></div></div>
+      <div class="ans" id="qAns"></div>
+    </div>
+    <div class="qright"><div class="kscreen" id="qScreen"></div><div id="qPad"></div></div>
+  </div>
 </div>
 
 <!-- 設定 -->
@@ -100,6 +110,7 @@
 const HELP = ['⭕❌ 圈圈叉叉怎麼玩', '全班分成兩隊比賽', [
   ['👫', '分成兩隊：<br><b style="color:var(--o)">⭕ 圈圈隊</b>、<b style="color:var(--x)">❌ 叉叉隊</b>'],
   ['👆', '輪到的隊伍<b>挑一個格子</b><br>畫面就會出一題'],
+  ['🔢', '用畫面上的<b>數字鍵盤</b>輸入答案<br>電腦會判斷對錯'],
   ['✅', '答對了，那格就畫上<br>自己隊伍的 <b>O</b> 或 <b>X</b><br>答錯了就換對方'],
   ['🏆', '先把三個記號<br><b>連成一條線</b>的隊伍贏！<br>（橫的、直的、斜的都可以）'],
 ], '⭐ 正中間是挑戰題，題目比較難'];
@@ -142,29 +153,30 @@ function ask(i) {
   const q = qFor(i);
   $('qWho').innerHTML = `<span style="color:${COLOR[G.turn]}">${NAME[G.turn]}</span> 挑第 ${i + 1} 格${i === 4 ? '・⭐挑戰題' : ''}`;
   $('qExpr').innerHTML = exprHTML(q.expr) + '<span class="expr" style="color:var(--muted)">&nbsp;= ?</span>';
-  $('qAns').textContent = '';
-  const btns = $('qBtns'); btns.innerHTML = '';
-  const mk = (txt, cls, fn) => { const b = document.createElement('button'); b.className = 'big-btn ' + cls; b.textContent = txt; b.onclick = fn; btns.appendChild(b); };
-  mk('答對 ✓', '', () => judge(i, q, true));
-  mk('答錯 ✗', 'red', () => judge(i, q, false));
-  mk('看答案', 'white', () => { $('qAns').textContent = '答案是 ' + q.answer; });
+  $('qAns').textContent = ''; $('qAns').className = 'ans';
+  // 用鍵盤輸入答案，電腦判斷對錯
+  let done = false;
+  const finish = (ok, why) => { if (done) return; done = true; judge(i, q, ok, why); };
+  $('qPad').classList.remove('locked');
+  keypad($('qPad'), $('qScreen'), { max: 3, onOk: v => finish(v === q.answer, v === q.answer ? '' : `答錯了！`) });
   $('qOv').classList.add('show');
-  startTimer();
+  startTimer(() => finish(false, '⏰ 時間到！'));
 }
-function startTimer() {
+function startTimer(onEnd) {
   clearInterval(timerT); const t = $('timer');
   if (!S.time) { t.style.display = 'none'; return; }
   t.style.display = ''; let left = S.time; const bar = $('tBar');
   const show = () => { $('tNum').textContent = left; bar.style.width = (left / S.time * 100) + '%'; t.classList.toggle('hurry', left <= 5); };
   bar.style.transition = 'none'; show(); void bar.offsetWidth; bar.style.transition = '';
-  timerT = setInterval(() => { left--; show(); if (left <= 5 && left > 0) SFX.tick(); if (left <= 0) { clearInterval(timerT); SFX.bad(); $('tNum').textContent = '時間到！'; } }, 1000);
+  timerT = setInterval(() => { left--; show(); if (left <= 5 && left > 0) SFX.tick(); if (left <= 0) { clearInterval(timerT); $('tNum').textContent = '0'; onEnd(); } }, 1000);
 }
-async function judge(i, q, ok) {
+async function judge(i, q, ok, why) {
   clearInterval(timerT);
-  $('qAns').textContent = '答案是 ' + q.answer;
-  $('qBtns').innerHTML = '';
-  if (ok) SFX.ding(); else SFX.bad();
-  await sleep(ok ? 900 : 1600);
+  $('qPad').classList.add('locked');
+  const a = $('qAns');
+  if (ok) { a.className = 'ans ok'; a.innerHTML = `✓ 答對了！`; SFX.ding(); }
+  else { a.className = 'ans no'; a.innerHTML = `✗ ${why}答案是 <span class="num">${q.answer}</span>`; SFX.bad(); }
+  await sleep(ok ? 1100 : 2200);
   $('qOv').classList.remove('show');
   if (ok) { G.cells[i] = G.turn; SFX.place(); }
   const line = LINES.find(l => l.every(k => G.cells[k] && G.cells[k] === G.cells[l[0]]));
