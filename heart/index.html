@@ -35,6 +35,21 @@
 .stats div>span{font-size:15px;font-weight:900;color:var(--muted);letter-spacing:2px}
 .stats div+div{border-left:1px solid var(--line)}
 .toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:18px;padding:10px 22px;font-size:24px;font-weight:900;display:none;z-index:30}
+.react{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;cursor:pointer}
+.react.show{display:flex;animation:reactIn .25s ease-out}
+@keyframes reactIn{from{opacity:0;transform:scale(1.08)}}
+.react.bad{background:#d63038}
+.react.good{background:#2f8c50}
+.react.miss{background:#e8821e}
+.react .emo{font-size:min(26vh,220px);line-height:1;animation:throb .5s infinite alternate}
+@keyframes throb{to{transform:scale(1.12)}}
+.react.bad .emo{animation:crack .12s 4,throb .5s .5s infinite alternate}
+@keyframes crack{25%{transform:translateX(-14px) rotate(-8deg)}75%{transform:translateX(14px) rotate(8deg)}}
+.react .t1{font-size:clamp(48px,7vw,110px);font-weight:900;margin-top:10px;text-shadow:0 4px 0 rgba(0,0,0,.18)}
+.react .t2{font-size:clamp(24px,3vw,44px);font-weight:900;margin-top:8px;opacity:.95}
+.react .t2 .num{font-family:Fredoka;font-size:1.3em}
+.shakeAll{animation:shakeAll .5s}
+@keyframes shakeAll{10%,50%,90%{transform:translate(-16px,6px)}30%,70%{transform:translate(16px,-6px)}}
 .flash{animation:flashBg .5s}
 @keyframes flashBg{30%{background:#ffd9d9}}
 @media (max-width:900px), (orientation:portrait){
@@ -73,6 +88,7 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div class="react" id="react"><div class="emo" id="rEmo"></div><div class="t1" id="rT1"></div><div class="t2" id="rT2"></div></div>
 
 <!-- 設定 -->
 <div class="ov dim" id="setOv">
@@ -115,7 +131,11 @@ function drawScore() { $('sOk').textContent = G.ok; $('sMiss').textContent = G.m
 // 每一拍：數字 +1、翻一張新卡
 function beat() {
   // 上一張該拍沒拍 → 錯過
-  if (G.card && G.card.answer === G.count && !G.judged) { G.miss++; drawScore(); toast(`😱 剛剛 ${exprText(G.card.expr)} = ${G.count}，要拍沒拍！`); SFX.bad(); }
+  if (G.card && G.card.answer === G.count && !G.judged) {
+    G.miss++; drawScore(); const c = G.card, n = G.count; G.judged = true; stop(); BUZZ();
+    react('miss', '😱', '錯過了！要拍沒拍', `${exprText(c.expr)} = <span class="num">${n}</span>，剛剛要拍桌！`, 2000).then(() => { if (!G.running) { G.card = null; play(); } });
+    return;
+  }
   G.count = G.count % S.max + 1; G.judged = false;
   // 大約 1/3 機率出「剛好相等」的卡；太久沒出就一定出；其他的故意出差 1、2 的陷阱
   let a;
@@ -139,17 +159,20 @@ $('playBtn').onclick = () => { if (G.running) stop(); else play(); };
 
 // 有人拍了
 async function slap() {
-  if (!G.card || G.judged) return;
+  if (!G.card) { toast(G.count ? '已經暫停了，按「▶ 繼續」再玩' : '先按「▶ 開始」喔！'); SFX.bad(); return; }
+  if (G.judged) { toast('這張已經判斷過了，等下一張！'); return; }
   const wasRunning = G.running; stop(); G.judged = true; SFX.slap();
   document.body.classList.remove('flash'); void document.body.offsetWidth; document.body.classList.add('flash');
   const hit = G.card.answer === G.count;
   $('res').textContent = `= ${G.card.answer}`;
   const v = $('verdict');
   if (hit) { G.ok++; v.className = 'verdict ok'; v.textContent = `✅ 拍對了！${G.card.answer} = ${G.count}`; SFX.ding(); }
-  else { G.bad++; v.className = 'verdict no'; v.textContent = `🙅 不能拍！答案是 ${G.card.answer}，不是 ${G.count}`; SFX.bad(); }
+  else { G.bad++; v.className = 'verdict no'; v.textContent = `🙅 不能拍！答案是 ${G.card.answer}，不是 ${G.count}`; BUZZ(); }
   drawScore();
+  if (hit) await react('good', '✋', '拍對了！', `${exprText(G.card.expr)} = <span class="num">${G.count}</span>`, 1500);
+  else await react('bad', '💔', '心臟病發作！', `${exprText(G.card.expr)} = <span class="num">${G.card.answer}</span>，不是 <span class="num">${G.count}</span>，不能拍！`, 2200);
   if (G.ok >= S.goal) { await sleep(1200); await celebrate('💓 全班過關！', `拍對 <span class="num">${G.ok}</span> 次・錯過 ${G.miss} 次・拍錯 ${G.bad} 次`, '再玩一次 ▶'); newGame(); return; }
-  if (wasRunning) { await sleep(2200); if (!G.running) { G.card = null; play(); } }
+  if (wasRunning) { await sleep(300); if (!G.running) { G.card = null; play(); } }
 }
 $('slapBtn').onclick = slap;
 document.addEventListener('keydown', e => {
@@ -157,6 +180,16 @@ document.addEventListener('keydown', e => {
   if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); slap(); }
   if (e.key === 'p' || e.key === 'P') { G.running ? stop() : play(); }
 });
+// 整頁大反應：拍對（綠）、拍錯（紅，心臟病發作）、錯過（橘）
+let reactT = null;
+function react(kind, emo, t1, t2, ms = 1900) {
+  const r = $('react'); r.className = 'react ' + kind; $('rEmo').textContent = emo; $('rT1').textContent = t1; $('rT2').innerHTML = t2 || '';
+  void r.offsetWidth; r.classList.add('show');
+  if (kind === 'bad') { const m = $('main'); m.classList.remove('shakeAll'); void m.offsetWidth; m.classList.add('shakeAll'); }
+  clearTimeout(reactT);
+  return new Promise(res => { const done = () => { r.classList.remove('show'); r.onclick = null; res(); }; reactT = setTimeout(done, ms); r.onclick = () => { clearTimeout(reactT); done(); }; });
+}
+const BUZZ = () => { tone(150, .45, 'sawtooth', .28); tone(110, .45, 'square', .12); tone(1000, .9, 'sine', .14, .5); }; // 嗶——（心電圖拉平）
 let toastT = null;
 function toast(t) { const el = $('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', 2200); }
 
